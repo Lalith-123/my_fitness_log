@@ -1,0 +1,27 @@
+import type { FoodSeed } from './types';
+
+export const SEAFOOD_FOODS: FoodSeed[] = [
+  ['Rohu, cooked', 'Fish & Seafood', 145, 17.0, 0, 7.5, 0, '1 piece|150'],
+  ['Catla, cooked', 'Fish & Seafood', 140, 16.5, 0, 7.0, 0, '1 piece|150'],
+  ['Surmai, kingfish, cooked', 'Fish & Seafood', 160, 19.0, 0, 9.0, 0, '1 piece|120'],
+  ['Pomfret, cooked', 'Fish & Seafood', 180, 18.0, 0, 11.5, 0, '1 piece|120'],
+  ['Pomfret, fried', 'Fish & Seafood', 240, 22.0, 2.0, 15.0, 0, '1 piece|100'],
+  ['Salmon, cooked', 'Fish & Seafood', 206, 22.0, 0, 12.0, 0, '1 fillet|120'],
+  ['Tuna, canned in water', 'Fish & Seafood', 116, 25.0, 0, 1.0, 0, '1 can drained|100'],
+  ['Tuna, fresh, cooked', 'Fish & Seafood', 132, 28.0, 0, 1.3, 0, '100 g|100'],
+  ['Mackerel, cooked', 'Fish & Seafood', 205, 19.0, 0, 14.0, 0, '1 piece|100'],
+  ['Sardine, cooked', 'Fish & Seafood', 190, 22.0, 0, 11.0, 0, '1 piece|80'],
+  ['Prawns, cooked', 'Fish & Seafood', 99, 24.0, 0.2, 0.3, 0, '1 cup|100'],
+  ['Shrimp, cooked', 'Fish & Seafood', 99, 24.0, 0.2, 0.3, 0, '1 cup|100'],
+  ['Fish curry, home style', 'Fish & Seafood', 120, 14.0, 3.0, 6.0, 0.5, '1 katori|180'],
+  ['Fish fry', 'Fish & Seafood', 230, 20.0, 2.0, 15.0, 0, '1 piece|100'],
+  ['Crab, cooked', 'Fish & Seafood', 95, 19.0, 0, 1.5, 0, '100 g|100'],
+  ['Squid, cooked', 'Fish & Seafood', 92, 16.0, 2.0, 2.0, 0, '100 g|100'],
+  ['Lobster, cooked', 'Fish & Seafood', 89, 20.5, 1.0, 0.9, 0, '100 g|100'],
+  ['Scampi, cooked', 'Fish & Seafood', 106, 20.0, 2.0, 2.5, 0, '100 g|100'],
+  ['Smoked fish', 'Fish & Seafood', 90, 18.0, 0, 1.0, 0, '100 g|100'],
+  ['Fish tikka, cooked', 'Fish & Seafood', 160, 20.0, 2.0, 8.0, 0.3, '4 pieces|150'],
+  ['Clams, cooked', 'Fish & Seafood', 148, 22.0, 5.0, 5.0, 0, '100 g|100'],
+  ['Oyster, cooked', 'Fish & Seafood', 84, 8.0, 4.0, 3.0, 0, '100 g|100'],
+  ['Seafood curry', 'Fish & Seafood', 130, 13.0, 4.0, 7.0, 0.6, '1 katori|180'],
+];

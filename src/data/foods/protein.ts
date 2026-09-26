@@ -1,0 +1,28 @@
+import type { FoodSeed } from './types';
+
+export const PROTEIN_FOODS: FoodSeed[] = [
+  ['Soya chunks, dry', 'Protein Foods', 345, 35.0, 32.0, 16.0, 12.0, '30 g|30'],
+  ['Soya chunks, cooked', 'Protein Foods', 105, 11.0, 9.0, 4.5, 3.5, '1 katori|100'],
+  ['Soya chunks curry', 'Protein Foods', 110, 9.0, 8.0, 5.0, 3.0, '1 katori|150'],
+  ['Tofu, firm', 'Protein Foods', 144, 17.0, 2.8, 8.7, 2.3, '100 g|100'],
+  ['Tofu, soft', 'Protein Foods', 76, 8.1, 1.9, 4.8, 0.3, '100 g|100'],
+  ['Tempeh', 'Protein Foods', 195, 19.0, 9.0, 11.0, 6.0, '100 g|100'],
+  ['Whey protein, powder', 'Protein Foods', 380, 78.0, 8.0, 5.0, 1.0, '1 scoop|30'],
+  ['Pea protein, powder', 'Protein Foods', 390, 78.0, 8.0, 5.0, 1.0, '1 scoop|30'],
+  ['Soy milk, plain', 'Protein Foods', 43, 3.3, 2.9, 2.0, 0.5, '1 glass|250'],
+  ['Almond milk, unsweetened', 'Protein Foods', 15, 0.6, 0.3, 1.2, 0.3, '1 glass|250'],
+  ['Peanut, boiled', 'Protein Foods', 170, 8.0, 15.0, 10.0, 6.0, '1 handful|30'],
+  ['Peanut, roasted', 'Protein Foods', 587, 25.0, 15.0, 50.0, 9.0, '1 handful|30'],
+  ['Chana, boiled', 'Protein Foods', 164, 8.9, 27.4, 2.6, 7.6, '1 katori|100'],
+  ['Rajma, boiled and mashed', 'Protein Foods', 128, 7.5, 22.0, 0.6, 6.0, '1 katori|100'],
+  ['Kidney beans, boiled', 'Protein Foods', 127, 8.7, 22.8, 0.5, 6.4, '1 cup|130'],
+  ['Mushroom, high protein', 'Protein Foods', 28, 3.5, 4.0, 0.5, 1.2, '1 katori|100'],
+  ['Egg white omelette, no oil', 'Protein Foods', 55, 11.0, 0.8, 0.4, 0, '3 white serving|100'],
+  ['Millet, ragi, raw', 'Protein Foods', 353, 11.3, 72.0, 3.2, 6.5, '1 cup|100'],
+  ['Buckwheat, raw', 'Protein Foods', 343, 13.3, 71.5, 3.4, 10.0, '1 cup|100'],
+  ['Barley, cooked', 'Protein Foods', 123, 2.3, 28.2, 0.4, 4.0, '1 bowl|150'],
+  ['Chia seed pudding', 'Protein Foods', 135, 4.0, 12.0, 8.0, 8.0, '1 cup|150'],
+  ['Peanut butter, protein', 'Protein Foods', 588, 25.0, 20.0, 50.0, 6.0, '1 tbsp|16'],
+  ['Chicken soup, clear', 'Protein Foods', 40, 4.0, 2.0, 1.5, 0.2, '1 bowl|250'],
+  ['Clear vegetable soup', 'Protein Foods', 25, 1.0, 3.5, 0.6, 1.0, '1 bowl|250'],
+];

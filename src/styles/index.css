@@ -1,0 +1,285 @@
+@import 'tailwindcss';
+
+@import '@fontsource-variable/inter/index.css';
+
+/*
+  Design tokens
+  -------------
+  One source of truth for colour, spacing, radius, shadow and type.
+  Components consume these via Tailwind utilities only (see tailwind theme map).
+*/
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Neutrals: warm, low-chroma */
+  --color-canvas: #faf9f6;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f4f3ef;
+  --color-line: #e8e6e0;
+  --color-line-strong: #d6d3ca;
+
+  --color-ink: #1c1b18;
+  --color-ink-muted: #5f5d56;
+  --color-ink-subtle: #8a877e;
+  --color-ink-inverse: #fbfaf7;
+
+  /* Brand: deep emerald */
+  --color-brand-50: #eef5f0;
+  --color-brand-100: #d6e8dd;
+  --color-brand-200: #aed1bd;
+  --color-brand-300: #7cb498;
+  --color-brand-400: #4a9772;
+  --color-brand-500: #2f7c58;
+  --color-brand-600: #1f6346;
+  --color-brand-700: #194e39;
+  --color-brand-800: #143c2c;
+  --color-brand-900: #0f2c21;
+
+  /* Status */
+  --color-caution-50: #fdf6e7;
+  --color-caution-100: #f9e9c6;
+  --color-caution-500: #b07d16;
+  --color-caution-700: #7d570c;
+  --color-caution-900: #4a3306;
+
+  --color-critical-50: #fcf0ef;
+  --color-critical-100: #f7dcd9;
+  --color-critical-500: #a8443c;
+  --color-critical-600: #8a3830;
+  --color-critical-700: #7d302a;
+
+  --color-accent-50: #eef3f9;
+  --color-accent-100: #d8e4f1;
+  --color-accent-500: #3a6ea5;
+  --color-accent-700: #2a5179;
+
+  /* Macro chart keys: four distinguishable hues that stay muted */
+  --color-protein: #3a6ea5;
+  --color-carbs: #b07d16;
+  --color-fat: #8a5a9e;
+  --color-fiber: #4a9772;
+
+  /* Radius scale: restrained */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadow scale: subtle, used sparingly */
+  --shadow-xs: 0 1px 2px rgb(28 27 24 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(28 27 24 / 0.05), 0 1px 1px rgb(28 27 24 / 0.03);
+  --shadow-md: 0 4px 12px -2px rgb(28 27 24 / 0.08), 0 2px 4px -2px rgb(28 27 24 / 0.04);
+  --shadow-lg: 0 12px 32px -8px rgb(28 27 24 / 0.14), 0 4px 8px -4px rgb(28 27 24 / 0.06);
+
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --animate-sheet-in: sheet-in 220ms var(--ease-out-soft);
+  --animate-fade-in: fade-in 160ms var(--ease-out-soft);
+  --animate-rise-in: rise-in 200ms var(--ease-out-soft);
+  --animate-toast-in: toast-in 200ms var(--ease-out-soft);
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translate3d(0, 12%, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    transform: translate3d(0, 6px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    transform: translate3d(0, 8px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/*
+  Dark mode
+  ---------
+  The app resolves the user's preference to a concrete `light` or `dark` and
+  writes it to `<html data-theme>`, so a system preference needs no media query
+  here. Warm neutrals are kept (same hue family as light) and the brand ramp is
+  re-tuned: tints become dark surfaces, the mid tones lighten so brand-700 works
+  both as a button background and as readable text.
+*/
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-canvas: #16150f;
+  --color-surface: #201f1a;
+  --color-surface-sunken: #131210;
+  --color-line: #302e28;
+  --color-line-strong: #45423a;
+
+  --color-ink: #f3f1ea;
+  --color-ink-muted: #b3b0a5;
+  --color-ink-subtle: #8d8a80;
+  --color-ink-inverse: #17160f;
+
+  --color-brand-50: #14261f;
+  --color-brand-100: #1c3629;
+  --color-brand-200: #26503b;
+  --color-brand-300: #326b4f;
+  --color-brand-400: #418a66;
+  --color-brand-500: #4d9d75;
+  --color-brand-600: #63b98c;
+  --color-brand-700: #7fcda2;
+  --color-brand-800: #a3ddbe;
+  --color-brand-900: #c7ead6;
+
+  --color-caution-50: #2b2210;
+  --color-caution-100: #3a2e14;
+  --color-caution-500: #d9a63c;
+  --color-caution-700: #e8c46c;
+  --color-caution-900: #f2d68f;
+
+  --color-critical-50: #2c1715;
+  --color-critical-100: #3d1d1a;
+  --color-critical-500: #d1685e;
+  --color-critical-600: #dd8076;
+  --color-critical-700: #e89a91;
+
+  --color-accent-50: #16232f;
+  --color-accent-100: #1d3143;
+  --color-accent-500: #6a9acb;
+  --color-accent-700: #9cc0e4;
+
+  --color-protein: #7fb0e0;
+  --color-carbs: #e0b558;
+  --color-fat: #c193d4;
+  --color-fiber: #7fc3a2;
+
+  /* Shadows read as depth only, so they soften in dark mode */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.32), 0 1px 1px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.24);
+  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.3);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.014em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background-color: var(--color-brand-100);
+    color: var(--color-brand-900);
+  }
+}
+
+@layer components {
+  /* Numeric data aligns in columns */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
