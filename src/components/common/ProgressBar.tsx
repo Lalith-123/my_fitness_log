@@ -22,11 +22,6 @@ export interface ProgressBarProps {
   className?: string;
 }
 
-export function toneForRatio(ratio: number, isOver: boolean): ProgressTone {
-  if (isOver) return 'caution';
-  return ratio >= 0.5 ? 'brand' : 'neutral';
-}
-
 export function ProgressBar({
   value,
   max = 1,
@@ -40,7 +35,6 @@ export function ProgressBar({
   const ratio = max > 0 ? value / max : 0;
   const isOver = ratio > 1;
   const width = `${clamp(isOver ? 1 : ratio, 0, 1) * 100}%`;
-  const resolvedTone = tone === 'brand' ? toneForRatio(ratio, isOver) : tone;
 
   return (
     <div className={['flex flex-col gap-1.5', className].filter(Boolean).join(' ')}>
@@ -60,7 +54,7 @@ export function ProgressBar({
         aria-label={label}
       >
         <div
-          className={['h-full rounded-full transition-[width] duration-500 ease-out', BAR_TONES[resolvedTone]].join(' ')}
+          className={['h-full rounded-full transition-[width] duration-500 ease-out', BAR_TONES[tone]].join(' ')}
           style={{ width }}
         />
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Plus, Search, Star } from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, Search, Star } from 'lucide-react';
 import { BottomSheet } from '@/components/common/BottomSheet';
 import { Button } from '@/components/common/Button';
 import { NumberField } from '@/components/common/NumberField';
@@ -65,6 +65,8 @@ export function FoodPickerSheet({
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  /** Set when the editor is opened to correct an existing food rather than create one. */
+  const [editorFood, setEditorFood] = useState<ResolvedFood | null>(null);
 
   const [selected, setSelected] = useState<ResolvedFood | null>(null);
   const [quantity, setQuantity] = useState('100');
@@ -88,6 +90,7 @@ export function FoodPickerSheet({
     setError(null);
     setMealType(defaultMealType ?? suggestMealType());
     setSelected(null);
+    setEditorFood(null);
     setQuantity('100');
     // Recent is the fastest path back for a returning user, but it is empty for
     // a new one, so fall back to the full list rather than an empty state.
@@ -194,9 +197,7 @@ export function FoodPickerSheet({
       });
       showToast(`${selected.name} added to ${MEAL_LABELS[mealType].toLowerCase()}.`, 'success');
       setSelected(null);
-      setQuery('');
-      setStep('browse');
-      window.setTimeout(() => searchInputRef.current?.focus(), 60);
+      onClose();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to save this food. Please try again.');
     } finally {
@@ -233,7 +234,14 @@ export function FoodPickerSheet({
               <ArrowLeft size={17} strokeWidth={2} aria-hidden="true" />
             </IconButton>
           ) : (
-            <IconButton label="Create a new food" size="sm" onClick={() => setEditorOpen(true)}>
+            <IconButton
+              label="Create a new food"
+              size="sm"
+              onClick={() => {
+                setEditorFood(null);
+                setEditorOpen(true);
+              }}
+            >
               <Plus size={17} strokeWidth={2} aria-hidden="true" />
             </IconButton>
           )
@@ -318,6 +326,10 @@ export function FoodPickerSheet({
                 </div>
               ) : null}
 
+              {tab === 'all' && !category && !query.trim() ? (
+                <p className="py-2 text-[11px] text-ink-subtle">{results.length} foods</p>
+              ) : null}
+
               {category && !query.trim() ? (
                 <div className="flex items-center justify-between gap-2 py-2">
                   <p className="text-[11px] text-ink-subtle">{results.length} in {category}</p>
@@ -361,7 +373,10 @@ export function FoodPickerSheet({
 
               {!isEmpty && !showCategories ? (                <button
                   type="button"
-                  onClick={() => setEditorOpen(true)}
+                  onClick={() => {
+                    setEditorFood(null);
+                    setEditorOpen(true);
+                  }}
                   className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-line-strong py-2.5 text-sm font-medium text-ink-muted transition-colors hover:border-ink-subtle hover:text-ink"
                 >
                   <Plus size={15} strokeWidth={2} aria-hidden="true" />
@@ -445,29 +460,20 @@ export function FoodPickerSheet({
             ) : null}
 
             {selectedNutrition ? (
-              <div className="rounded-lg border border-line bg-surface">
-                <div className="flex items-baseline justify-between border-b border-line px-3.5 py-2.5">
-                  <span className="text-sm text-ink-muted">Energy</span>
-                  <span className="text-sm font-semibold text-ink tnum">
-                    {formatCalories(selectedNutrition.calories)} kcal
-                  </span>
-                </div>
-                <dl className="grid grid-cols-4 divide-x divide-line">
-                  {(
-                    [
-                      ['Protein', selectedNutrition.protein],
-                      ['Carbs', selectedNutrition.carbs],
-                      ['Fat', selectedNutrition.fat],
-                      ['Fiber', selectedNutrition.fiber],
-                    ] as const
-                  ).map(([label, value]) => (
-                    <div key={label} className="px-2 py-2.5 text-center">
-                      <dt className="text-[10px] text-ink-subtle">{label}</dt>
-                      <dd className="mt-0.5 text-xs font-medium text-ink tnum">{formatGrams(value)} g</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
+              editItem ? (
+                <NutritionSummary nutrition={selectedNutrition} />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditorFood(selected);
+                    setEditorOpen(true);
+                  }}
+                  className="group block w-full rounded-lg border border-line bg-surface text-left transition-colors hover:border-line-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                >
+                  <NutritionSummary nutrition={selectedNutrition} editable />
+                </button>
+              )
             ) : null}
 
             {editItem ? (
@@ -505,13 +511,64 @@ export function FoodPickerSheet({
 
       <FoodEditorSheet
         open={editorOpen}
-        onClose={() => setEditorOpen(false)}
+        onClose={() => {
+          setEditorOpen(false);
+          setEditorFood(null);
+        }}
+        food={editorFood}
+        onSaved={(updated) => {
+          // Correcting values here must refresh the numbers on this step, and
+          // the item is only snapshotted into the meal when it is added.
+          if (editorFood) setSelected(updated);
+        }}
         onAddNowRequest={(created) => {
           setSelected(created);
           setQuantity(String(created.portion?.grams ?? 100));
           setStep('quantity');
         }}
       />
+    </>
+  );
+}
+
+const MACRO_FIELDS = [
+  ['Protein', 'protein'],
+  ['Carbs', 'carbs'],
+  ['Fat', 'fat'],
+  ['Fiber', 'fiber'],
+] as const;
+
+function NutritionSummary({
+  nutrition,
+  editable = false,
+}: {
+  nutrition: NutritionTotals;
+  editable?: boolean;
+}) {
+  return (
+    <>
+      <div className="flex items-baseline justify-between border-b border-line px-3.5 py-2.5">
+        <span className="text-sm text-ink-muted">Energy</span>
+        <span className="text-sm font-semibold text-ink tnum">
+          {formatCalories(nutrition.calories)} kcal
+        </span>
+      </div>
+      <dl className="grid grid-cols-4 divide-x divide-line">
+        {MACRO_FIELDS.map(([label, key]) => (
+          <div key={key} className="px-2 py-2.5 text-center">
+            <dt className="text-[10px] text-ink-subtle">{label}</dt>
+            <dd className="mt-0.5 text-xs font-medium text-ink tnum">
+              {formatGrams(nutrition[key])} g
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {editable ? (
+        <p className="flex items-center gap-1.5 border-t border-line px-3.5 py-2 text-[11px] text-ink-subtle">
+          <Pencil size={12} strokeWidth={2} aria-hidden="true" />
+          Tap to correct these values
+        </p>
+      ) : null}
     </>
   );
 }

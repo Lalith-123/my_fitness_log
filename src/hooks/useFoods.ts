@@ -69,8 +69,8 @@ export function useFoodSearch(index: FoodIndex, state: FoodBrowseState): Resolve
 
     if (state.tab === 'recent') return index.recentFoods.slice(0, 20);
     if (state.tab === 'favorites') return index.favoriteFoods.slice(0, 30);
-    if (state.category) return searchFoods(index.foods, '', { category: state.category, limit: 60 });
-    if (state.tab === 'all') return searchFoods(index.foods, '', { limit: 40 });
+    if (state.category) return searchFoods(index.foods, '', { category: state.category });
+    if (state.tab === 'all') return searchFoods(index.foods, '');
     return [];
   }, [index, debouncedQuery, state.tab, state.category]);
 }

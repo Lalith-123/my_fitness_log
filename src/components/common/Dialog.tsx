@@ -111,7 +111,7 @@ export function Dialog({
         </div>
         {children ? <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">{children}</div> : null}
         {footer ? (
-          <div className="flex flex-col-reverse gap-2 border-t border-line px-4 py-3 safe-bottom sm:flex-row sm:justify-end sm:px-5">
+          <div className="flex flex-col-reverse gap-2 border-t border-line px-4 pt-3 footer-pad sm:flex-row sm:justify-end sm:px-5">
             {footer}
           </div>
         ) : null}

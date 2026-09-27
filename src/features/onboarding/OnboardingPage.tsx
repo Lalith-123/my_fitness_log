@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { db, METADATA_KEYS } from '@/db/database';
 import { MEDICAL_DISCLAIMER, PRIVACY_STATEMENT, PRIVACY_DETAILS } from '@/app/content';
 import { Button } from '@/components/common/Button';
@@ -8,9 +8,8 @@ import { TextField } from '@/components/common/TextField';
 import { NumberField } from '@/components/common/NumberField';
 import { SelectField } from '@/components/common/SelectField';
 import { SegmentedControl } from '@/components/common/SegmentedControl';
-import { createProfile, logInitialWeight, SEX_OPTIONS } from '@/services/profile/profile';
+import { createProfile, DEFAULT_ACTIVITY_LEVEL, logInitialWeight, SEX_OPTIONS } from '@/services/profile/profile';
 import { createGoal } from '@/services/goals/goals';
-import { ACTIVITY_DESCRIPTIONS, ACTIVITY_LABELS } from '@/services/nutrition/energy';
 import {
   AGGRESSIVE_TARGET_NOTICE,
   ESTIMATE_DISCLAIMER,
@@ -18,18 +17,24 @@ import {
   validateGoal,
   WEEKLY_CHANGE_LIMITS,
 } from '@/services/nutrition/targets';
+import { tdeeFromBmr } from '@/services/nutrition/energy';
 import { getTodayLocalDate } from '@/utils/dates/dates';
-import { formatCalories, formatNumber, formatWeight, parseNumericInput } from '@/utils/numbers/numbers';
-import { LIMITS } from '@/utils/validation/validation';
+import { formatCalories, formatNumber, formatWeight, parseNumericInput, round } from '@/utils/numbers/numbers';
+import { LIMITS, validateEnergyKcal } from '@/utils/validation/validation';
 import { useToast } from '@/components/common/Toast';
-import type { ActivityLevel, GoalType, Sex } from '@/types';
+import { AccentPicker } from '@/components/common/AccentPicker';
+import { previewAccent, previewTheme } from '@/hooks/useTheme';
+import { resolveScheme } from '@/app/theme';
+import type { AccentPreference, ActivityLevel, GoalType, Sex, ThemePreference } from '@/types';
 
-const STEPS = ['About you', 'Activity', 'Goal', 'Review'] as const;
+const STEPS = ['Appearance', 'About you', 'Goal', 'Review'] as const;
 
 const WEEKLY_OPTIONS_LOSE = [0.25, 0.5, 0.75, 1.0];
 const WEEKLY_OPTIONS_GAIN = [0.1, 0.25, 0.5];
 
 interface FormState {
+  theme: ThemePreference;
+  accent: AccentPreference;
   name: string;
   age: string;
   sex: Sex;
@@ -39,19 +44,26 @@ interface FormState {
   goalType: GoalType;
   weeklyChangeKg: string;
   targetWeightKg: string;
+  /** User's own resting / maintenance figures. Blank means "use the estimate". */
+  bmrOverride: string;
+  tdeeOverride: string;
   acceptedDisclaimer: boolean;
 }
 
 const INITIAL: FormState = {
+  theme: 'system',
+  accent: 'bubblegum',
   name: '',
   age: '',
   sex: 'male',
   heightCm: '',
   currentWeightKg: '',
-  activityLevel: 'light',
+  activityLevel: DEFAULT_ACTIVITY_LEVEL,
   goalType: 'lose',
   weeklyChangeKg: '0.5',
   targetWeightKg: '',
+  bmrOverride: '',
+  tdeeOverride: '',
   acceptedDisclaimer: false,
 };
 
@@ -69,42 +81,86 @@ export function OnboardingPage() {
     setErrors((current) => ({ ...current, [key]: null }));
   };
 
+  // Palette and scheme are previewed on the spot so the choice is made against
+  // the real colours, then written to the database on submit.
+  const chooseAccent = (accent: AccentPreference) => {
+    update('accent', accent);
+    previewAccent(accent);
+  };
+  const chooseTheme = (theme: ThemePreference) => {
+    update('theme', theme);
+    previewTheme(theme);
+  };
+
+  /**
+   * Resting energy sits above maintenance in the chain, so changing it clears
+   * any manually entered maintenance figure and lets that re-derive from the new
+   * resting value. The daily target follows automatically, since it is never
+   * stored.
+   */
+  const updateBmrOverride = (value: string) => {
+    setForm((current) => ({ ...current, bmrOverride: value, tdeeOverride: '' }));
+    setErrors((current) => ({ ...current, bmrOverride: null, tdeeOverride: null }));
+  };
+  const previewScheme = resolveScheme(form.theme);
+
+  const bmrOverride = parseNumericInput(form.bmrOverride);
+  const tdeeOverride = parseNumericInput(form.tdeeOverride);
+
   const age = parseNumericInput(form.age);
   const heightCm = parseNumericInput(form.heightCm);
   const currentWeightKg = parseNumericInput(form.currentWeightKg);
   const targetWeightKg = parseNumericInput(form.targetWeightKg);
   const weeklyChangeKg = parseNumericInput(form.weeklyChangeKg);
 
-  const calculation = useMemo(() => {
-    if (
-      form.name.trim() === '' ||
-      age === null ||
-      heightCm === null ||
-      currentWeightKg === null
-    ) {
-      return null;
-    }
+  const energyInput = useMemo(() => {
+    if (age === null || heightCm === null || currentWeightKg === null) return null;
+    return {
+      weightKg: currentWeightKg,
+      heightCm,
+      age,
+      sex: form.sex,
+      activityLevel: form.activityLevel,
+    };
+  }, [age, heightCm, currentWeightKg, form.sex, form.activityLevel]);
+
+  const goalInput = useMemo(() => {
+    if (form.name.trim() === '' || currentWeightKg === null) return null;
     // Maintenance targets the current weight, so only lose/gain need a target.
     const resolvedTarget = form.goalType === 'maintain' ? currentWeightKg : targetWeightKg;
     if (resolvedTarget === null) return null;
-    const resolvedWeekly = form.goalType === 'maintain' ? undefined : (weeklyChangeKg ?? undefined);
+    return {
+      type: form.goalType,
+      startingWeightKg: currentWeightKg,
+      targetWeightKg: resolvedTarget,
+      weeklyChangeKg: form.goalType === 'maintain' ? undefined : (weeklyChangeKg ?? undefined),
+    };
+  }, [form.name, form.goalType, currentWeightKg, targetWeightKg, weeklyChangeKg]);
 
-    return calculateTargetCalories(
-      {
-        weightKg: currentWeightKg,
-        heightCm,
-        age,
-        sex: form.sex,
-        activityLevel: form.activityLevel,
-      },
-      {
-        type: form.goalType,
-        startingWeightKg: currentWeightKg,
-        targetWeightKg: resolvedTarget,
-        weeklyChangeKg: resolvedWeekly,
-      },
-    );
-  }, [form, age, heightCm, currentWeightKg, targetWeightKg, weeklyChangeKg]);
+  const calculation = useMemo(() => {
+    const energy = energyInput;
+    if (!energy || !goalInput) return null;
+    return calculateTargetCalories(energy, goalInput, {
+      bmr: bmrOverride ?? undefined,
+      tdee: tdeeOverride ?? undefined,
+    });
+  }, [energyInput, goalInput, bmrOverride, tdeeOverride]);
+
+  /** The untouched estimate, used as the placeholder on the editable fields. */
+  const calculated = useMemo(() => {
+    if (!energyInput || !goalInput) return null;
+    return calculateTargetCalories(energyInput, goalInput);
+  }, [energyInput, goalInput]);
+
+  /**
+   * What maintenance would become if its field were left blank, so the field can
+   * advertise the figure it would fall back to.
+   */
+  const derivedTdee = useMemo(() => {
+    if (!calculated) return 0;
+    if (bmrOverride === null) return calculated.tdee;
+    return round(tdeeFromBmr(bmrOverride, form.activityLevel));
+  }, [calculated, bmrOverride, form.activityLevel]);
 
   const goalValidation = useMemo(() => {
     if (currentWeightKg === null) return null;
@@ -121,7 +177,8 @@ export function OnboardingPage() {
   const validateStep = (index: number): boolean => {
     const nextErrors: Record<string, string | null> = {};
 
-    if (index === 0) {
+    // Step 0 is the appearance picker; it has no required fields.
+    if (index === 1) {
       if (form.name.trim() === '') nextErrors.name = 'Enter your name.';
       else if (form.name.trim().length > 40) nextErrors.name = 'Use 40 characters or fewer.';
 
@@ -156,8 +213,15 @@ export function OnboardingPage() {
       }
     }
 
-    if (index === 3 && !form.acceptedDisclaimer) {
-      nextErrors.acceptedDisclaimer = 'Please confirm you have read the notice before continuing.';
+    if (index === 3) {
+      nextErrors.bmrOverride =
+        validateEnergyKcal(form.bmrOverride, 'resting energy').message ?? null;
+      nextErrors.tdeeOverride =
+        validateEnergyKcal(form.tdeeOverride, 'maintenance energy').message ?? null;
+
+      if (!form.acceptedDisclaimer) {
+        nextErrors.acceptedDisclaimer = 'Please confirm you have read the notice before continuing.';
+      }
     }
 
     setErrors(nextErrors);
@@ -188,6 +252,8 @@ export function OnboardingPage() {
         heightCm: heightCm as number,
         currentWeightKg: currentWeightKg as number,
         activityLevel: form.activityLevel,
+        bmrOverride: bmrOverride ?? undefined,
+        tdeeOverride: tdeeOverride ?? undefined,
       });
       await logInitialWeight(currentWeightKg as number, today);
       await createGoal({
@@ -199,7 +265,8 @@ export function OnboardingPage() {
       });
       await db.settings.put({
         id: 'app',
-        theme: 'system',
+        theme: form.theme,
+        accent: form.accent,
         units: 'metric',
         disclaimerAcceptedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
@@ -216,9 +283,9 @@ export function OnboardingPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col px-4 pt-6 pb-10 safe-top">
+    <div className="mx-auto flex min-h-dvh w-full max-w-[560px] flex-col px-4 pb-10 pt-[calc(env(safe-area-inset-top,0px)+2.5rem)]">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold tracking-[-0.01em] text-ink">Fitness Log</p>
+        <p className="text-base font-semibold tracking-[-0.01em] text-ink">Fitness Log</p>
         <p className="text-xs text-ink-subtle tnum">
           {step + 1} of {STEPS.length}
         </p>
@@ -239,6 +306,31 @@ export function OnboardingPage() {
 
       <div className="mt-5 flex-1">
         {step === 0 ? (
+          <section className="flex flex-col gap-5 animate-rise-in">
+            <div>
+              <h1 className="text-xl font-semibold tracking-[-0.02em] text-ink">Appearance</h1>
+              <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+                Pick the colour you will see every day. You can change it later in Settings.
+              </p>
+            </div>
+            <AccentPicker value={form.accent} onChange={chooseAccent} scheme={previewScheme} />
+            <div>
+              <p className="mb-2 text-[13px] font-medium text-ink-muted">Light or dark</p>
+              <SegmentedControl
+                className="w-full"
+                size="sm"
+                label="Light or dark"
+                value={form.theme}
+                onChange={chooseTheme}
+                options={[
+                  { value: 'light', label: 'Light' },
+                  { value: 'dark', label: 'Dark' },
+                  { value: 'system', label: 'System' },
+                ]}
+              />
+            </div>
+          </section>
+        ) : step === 1 ? (
           <section className="flex flex-col gap-5 animate-rise-in">
             <div>
               <h1 className="text-xl font-semibold tracking-[-0.02em] text-ink">About you</h1>
@@ -303,53 +395,6 @@ export function OnboardingPage() {
                 required
               />
             </div>
-          </section>
-        ) : null}
-
-        {step === 1 ? (
-          <section className="flex flex-col gap-5 animate-rise-in">
-            <div>
-              <h1 className="text-xl font-semibold tracking-[-0.02em] text-ink">Activity level</h1>
-              <p className="mt-1 text-sm leading-relaxed text-ink-muted">
-                Choose the level that matches your usual week. This is used for the initial estimate only.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2" role="radiogroup" aria-label="Activity level">
-              {(['sedentary', 'light', 'moderate', 'active'] as ActivityLevel[]).map((level) => {
-                const selected = form.activityLevel === level;
-                return (
-                  <button
-                    key={level}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    onClick={() => update('activityLevel', level)}
-                    className={[
-                      'flex items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-colors duration-150',
-                      selected
-                        ? 'border-brand-500 bg-brand-50'
-                        : 'border-line bg-surface hover:border-line-strong',
-                    ].join(' ')}
-                  >
-                    <span
-                      className={[
-                        'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border',
-                        selected ? 'border-brand-600 bg-brand-600' : 'border-line-strong',
-                      ].join(' ')}
-                    >
-                      {selected ? <Check size={12} strokeWidth={3} className="text-white" aria-hidden="true" /> : null}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium text-ink">{ACTIVITY_LABELS[level]}</span>
-                      <span className="block text-xs text-ink-muted">{ACTIVITY_DESCRIPTIONS[level]}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            <p className="text-xs leading-relaxed text-ink-subtle">
-              Exercise is not tracked in this version. The level only affects the maintenance estimate.
-            </p>
           </section>
         ) : null}
 
@@ -455,7 +500,7 @@ export function OnboardingPage() {
           </section>
         ) : null}
 
-        {step === 3 && calculation ? (
+        {step === 3 && calculation && calculated ? (
           <section className="flex flex-col gap-5 animate-rise-in">
             <div>
               <h1 className="text-xl font-semibold tracking-[-0.02em] text-ink">Your estimate</h1>
@@ -470,10 +515,45 @@ export function OnboardingPage() {
               </p>
             ) : null}
 
+            <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-ink-subtle">
+              Your energy figures
+            </p>
+            <p className="-mt-3 text-xs leading-relaxed text-ink-subtle">
+              These are estimates from your details. If you know your own numbers, enter them below
+              and everything will recalculate.
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <NumberField
+                label="Resting energy (BMR)"
+                unit="kcal"
+                value={form.bmrOverride}
+                onChange={updateBmrOverride}
+                error={errors.bmrOverride}
+                placeholder={String(calculated.bmr)}
+                min={LIMITS.energyKcal.min}
+                max={LIMITS.energyKcal.max}
+                hint="Leave blank to use the estimate."
+              />
+              <NumberField
+                label="Maintenance energy"
+                unit="kcal"
+                value={form.tdeeOverride}
+                onChange={(value) => update('tdeeOverride', value)}
+                error={errors.tdeeOverride}
+                placeholder={String(derivedTdee)}
+                min={LIMITS.energyKcal.min}
+                max={LIMITS.energyKcal.max}
+                hint="Leave blank to use the estimate."
+              />
+            </div>
+
             <dl className="divide-y divide-line rounded-lg border border-line bg-surface px-4">
-              <SummaryRow label="Resting energy (BMR)" value={`${formatCalories(calculation.bmr)} kcal`} />
               <SummaryRow
-                label="Maintenance estimate"
+                label="Resting energy in use"
+                value={`${formatCalories(calculation.bmr)} kcal`}
+              />
+              <SummaryRow
+                label="Maintenance in use"
                 value={`${formatCalories(calculation.tdee)} kcal`}
               />
               <SummaryRow

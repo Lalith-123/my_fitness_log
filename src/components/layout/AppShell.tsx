@@ -111,9 +111,6 @@ function MobileHeader({
                 {item.label}
               </button>
             ))}
-            <p className="px-3 pt-3 pb-2 text-[11px] leading-relaxed text-ink-subtle">
-              Your data stays on this device. No account, no server.
-            </p>
           </nav>
         </div>
       ) : null}
@@ -211,14 +208,11 @@ function DesktopSidebar() {
       </nav>
 
       <div className="mt-auto px-3">
-        <div className="border-t border-line pt-4">
-          <p className="text-xs leading-relaxed text-ink-subtle">
-            Your data stays on this device. No account, no server.
-          </p>
-          {target ? (
-            <p className="mt-2 text-xs text-ink-muted tnum">Target {formatCalories(target.target)} kcal</p>
-          ) : null}
-        </div>
+        {target ? (
+          <div className="border-t border-line pt-4">
+            <p className="text-xs text-ink-muted tnum">Target {formatCalories(target.target)} kcal</p>
+          </div>
+        ) : null}
       </div>
     </aside>
   );

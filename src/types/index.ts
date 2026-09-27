@@ -14,6 +14,9 @@ export type UnitSystem = 'metric';
 
 export type ThemePreference = 'system' | 'light' | 'dark';
 
+/** Accent palettes. Only the brand ramp changes; status and macro hues are fixed. */
+export type AccentPreference = 'bubblegum' | 'sky' | 'mint' | 'peach' | 'grape';
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -22,6 +25,14 @@ export interface UserProfile {
   heightCm: number;
   currentWeightKg: number;
   activityLevel: ActivityLevel;
+  /**
+   * Daily energy figures the user supplied themselves, in kcal per day, for
+   * when they have measured numbers that beat the estimate. Absent means "use
+   * the calculated value".
+   */
+  bmrOverride?: number;
+  tdeeOverride?: number;
+  targetOverride?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -109,6 +120,7 @@ export interface WeightLog {
 export interface AppSettings {
   id: 'app';
   theme: ThemePreference;
+  accent: AccentPreference;
   units: UnitSystem;
   disclaimerAcceptedAt: string;
   createdAt: string;

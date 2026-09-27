@@ -122,32 +122,3 @@ export async function restoreBackup(
     },
   };
 }
-
-/**
- * Remove everything the user created: profile, goals, meals, weight history,
- * settings, favourites, recents, food overrides and custom foods. The built-in
- * food database is reference data, so it is re-seeded rather than deleted.
- */
-export async function clearAllData(): Promise<void> {
-  await db.transaction('rw', WRITABLE_TABLES, async () => {
-    await db.profiles.clear();
-    await db.goals.clear();
-    await db.meals.clear();
-    await db.mealItems.clear();
-    await db.weightLogs.clear();
-    await db.settings.clear();
-    await db.foodOverrides.clear();
-    await db.favorites.clear();
-    await db.recentFoods.clear();
-    await db.metadata.clear();
-    const customFoodIds = await db.foods.filter((food) => food.isUserCreated).primaryKeys();
-    if (customFoodIds.length > 0) await db.foods.bulkDelete(customFoodIds);
-  });
-
-  // The food database is re-seeded so the app is usable straight away.
-  await seedFoodDatabaseIfNeeded();
-  await db.metadata.put({
-    key: METADATA_KEYS.foodDatabaseVersion,
-    value: String(FOOD_DATABASE_VERSION),
-  });
-}

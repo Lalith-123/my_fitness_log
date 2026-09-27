@@ -213,7 +213,7 @@ export function searchFoods(
   query: string,
   options: { limit?: number; category?: string } = {},
 ): ResolvedFood[] {
-  const limit = options.limit ?? 40;
+  const limit = options.limit ?? Number.POSITIVE_INFINITY;
   const pool = options.category
     ? foods.filter((food) => food.category === options.category)
     : foods;

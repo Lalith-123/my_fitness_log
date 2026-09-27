@@ -83,12 +83,16 @@ export function useTargetCalories(): TargetCalories | null {
 
   return useMemo(() => {
     if (!profile || !goal) return null;
-    const result = calculateTargetCalories(energyInputFromProfile(profile), {
-      type: goal.type,
-      startingWeightKg: goal.startingWeightKg,
-      targetWeightKg: goal.targetWeightKg,
-      weeklyChangeKg: goal.weeklyChangeKg,
-    });
+    const result = calculateTargetCalories(
+      energyInputFromProfile(profile),
+      {
+        type: goal.type,
+        startingWeightKg: goal.startingWeightKg,
+        targetWeightKg: goal.targetWeightKg,
+        weeklyChangeKg: goal.weeklyChangeKg,
+      },
+      { bmr: profile.bmrOverride, tdee: profile.tdeeOverride, target: profile.targetOverride },
+    );
     return {
       bmr: result.bmr,
       tdee: result.tdee,

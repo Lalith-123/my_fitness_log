@@ -104,7 +104,7 @@ export function BottomSheet({
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
         {footer ? (
-          <div className="border-t border-line px-4 py-3 safe-bottom sm:px-5">{footer}</div>
+          <div className="border-t border-line px-4 pt-3 footer-pad sm:px-5">{footer}</div>
         ) : null}
       </div>
     </div>

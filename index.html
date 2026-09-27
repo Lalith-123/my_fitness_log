@@ -20,22 +20,28 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>Fitness Log</title>
     <script>
-      // Resolve the theme before first paint so the page never flashes the wrong
-      // colour scheme. Kept in sync with src/hooks/useTheme.ts.
+      // Resolve the theme and accent before first paint so the page never flashes
+      // the wrong colours. Kept in sync with src/hooks/useTheme.ts.
       (function () {
+        var root = document.documentElement;
         try {
-          var cached = localStorage.getItem('fl.theme');
-          if (cached !== 'light' && cached !== 'dark' && cached !== 'system') cached = 'system';
-          var resolved =
-            cached === 'system'
+          var t = localStorage.getItem('fl.theme');
+          if (t !== 'light' && t !== 'dark' && t !== 'system') t = 'system';
+          var scheme =
+            t === 'system'
               ? window.matchMedia('(prefers-color-scheme: dark)').matches
                 ? 'dark'
                 : 'light'
-              : cached;
-          document.documentElement.dataset.theme = resolved;
-          document.documentElement.style.colorScheme = resolved;
+              : t;
+          root.dataset.theme = scheme;
+          root.style.colorScheme = scheme;
+
+          var a = localStorage.getItem('fl.accent');
+          if (['bubblegum', 'sky', 'mint', 'peach', 'grape'].indexOf(a) === -1) a = 'bubblegum';
+          root.dataset.accent = a;
         } catch (error) {
-          document.documentElement.dataset.theme = 'light';
+          root.dataset.theme = 'light';
+          root.dataset.accent = 'bubblegum';
         }
       })();
     </script>

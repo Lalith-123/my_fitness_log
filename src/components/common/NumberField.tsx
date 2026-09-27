@@ -58,7 +58,9 @@ function NumberFieldInput({
 
   const nudge = (direction: 1 | -1) => {
     if (disabled) return;
-    const base = numeric ?? min ?? 0;
+    // When the field is still empty, step away from the placeholder the user can
+    // see rather than from an invisible minimum.
+    const base = numeric ?? parseNumericInput(placeholder ?? '') ?? min ?? 0;
     const amount = step ?? 1;
     const next = clampValue(roundTo(base + direction * amount));
     onChange(String(next));

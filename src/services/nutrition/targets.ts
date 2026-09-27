@@ -5,6 +5,7 @@ import {
   calculateBMR,
   calculateTDEE,
   dailyAdjustmentForWeeklyChange,
+  tdeeFromBmr,
   type EnergyInput,
 } from './energy';
 
@@ -175,16 +176,48 @@ export interface CalorieTargetResult {
 }
 
 /**
+ * Daily figures the user supplied themselves, in kcal per day, for when they
+ * have measured numbers that beat the estimate. Each is optional, and an absent
+ * value means "derive it".
+ *
+ * The three form a chain, and each level wins over the one derived from it:
+ * BMR feeds maintenance, and maintenance feeds the daily target. The target is
+ * only ever entered from Settings; during onboarding it stays derived so that
+ * choosing a rate or a direction can never leave a stale number behind.
+ *
+ * User-supplied figures are still checked against the same boundaries as the
+ * estimate, so an override can correct a number but never bypass the guardrails.
+ */
+export interface CalorieOverrides {
+  bmr?: number;
+  tdee?: number;
+  target?: number;
+}
+
+/**
  * Full calorie target calculation for a goal request. All safety logic lives
  * here; components receive the finished result and never clamp values
  * themselves.
+ *
+ * Precedence for each figure is: the user's own number, then the value derived
+ * from the figure above it, then the plain calculated estimate.
  */
 export function calculateTargetCalories(
   energy: EnergyInput,
   goal: GoalInput,
+  overrides: CalorieOverrides = {},
 ): CalorieTargetResult {
-  const bmr = round(calculateBMR(energy));
-  const tdee = round(calculateTDEE(energy));
+  const estimatedBmr = round(calculateBMR(energy));
+  const estimatedTdee = round(calculateTDEE(energy));
+
+  const bmr = overrides.bmr != null ? round(overrides.bmr) : estimatedBmr;
+  // A pinned BMR re-scales maintenance; a pinned maintenance wins outright.
+  const tdee =
+    overrides.tdee != null
+      ? round(overrides.tdee)
+      : overrides.bmr != null
+        ? round(tdeeFromBmr(bmr, energy.activityLevel))
+        : estimatedTdee;
 
   let rawTarget = tdee;
   let severity: GuardrailSeverity = 'ok';
@@ -200,7 +233,10 @@ export function calculateTargetCalories(
     }
   }
 
-  const { target, limited } = validateCalorieTarget(rawTarget, bmr, tdee, energy.sex);
+  // User-supplied figures are checked against the same boundaries as the
+  // estimate, so a correction can never be used to bypass the guardrails.
+  const desired = overrides.target != null ? round(overrides.target) : round(rawTarget);
+  const { target, limited } = validateCalorieTarget(desired, bmr, tdee, energy.sex);
   if (limited) {
     severity = 'blocked';
     notice = AGGRESSIVE_TARGET_NOTICE;

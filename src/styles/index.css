@@ -24,17 +24,17 @@
   --color-ink-subtle: #8a877e;
   --color-ink-inverse: #fbfaf7;
 
-  /* Brand: deep emerald */
-  --color-brand-50: #eef5f0;
-  --color-brand-100: #d6e8dd;
-  --color-brand-200: #aed1bd;
-  --color-brand-300: #7cb498;
-  --color-brand-400: #4a9772;
-  --color-brand-500: #2f7c58;
-  --color-brand-600: #1f6346;
-  --color-brand-700: #194e39;
-  --color-brand-800: #143c2c;
-  --color-brand-900: #0f2c21;
+  /* Brand: Bubblegum, the default palette (cute but still AA on white text) */
+  --color-brand-50: #fff0f6;
+  --color-brand-100: #ffddea;
+  --color-brand-200: #ffbcd6;
+  --color-brand-300: #ff90b8;
+  --color-brand-400: #f9679b;
+  --color-brand-500: #ec3d7d;
+  --color-brand-600: #cc1f60;
+  --color-brand-700: #a80e4c;
+  --color-brand-800: #8a0c41;
+  --color-brand-900: #730b37;
 
   /* Status */
   --color-caution-50: #fdf6e7;
@@ -124,66 +124,239 @@
 }
 
 /*
+  Accent palettes
+  ---------------
+  Five friendly palettes. Only the brand ramp and the page background tint vary;
+  the status and macro hues stay fixed, because "caution" and "protein" must keep
+  their meaning whichever palette is chosen.
+
+  Chroma is deliberately high. 500 is the anchor step, 600 is dark enough to carry
+  white button text, 700 is the "brand text on a tint" step, and 50/100 are the
+  candy tints used for selected surfaces. The page background carries a faint tint
+  of the palette so a theme feels like a whole look rather than an accent swapped
+  onto the same cream.
+
+  Applied by `<html data-accent="…">`. The default :root above is Bubblegum, so an
+  absent attribute still yields a valid palette.
+*/
+:root[data-accent='bubblegum'] {
+  --color-canvas: #fff6fa;
+  --color-surface-sunken: #ffeaf3;
+}
+
+:root[data-accent='sky'] {
+  --color-canvas: #f2f9ff;
+  --color-surface-sunken: #e4f2ff;
+  --color-brand-50: #eff8ff;
+  --color-brand-100: #d9efff;
+  --color-brand-200: #b6e0ff;
+  --color-brand-300: #7fcbff;
+  --color-brand-400: #45b0fb;
+  --color-brand-500: #1e93ea;
+  --color-brand-600: #0a72cc;
+  --color-brand-700: #0459a3;
+  --color-brand-800: #034a88;
+  --color-brand-900: #033e72;
+}
+
+:root[data-accent='mint'] {
+  --color-canvas: #f1fff9;
+  --color-surface-sunken: #e0fcef;
+  --color-brand-50: #effff7;
+  --color-brand-100: #d5ffe9;
+  --color-brand-200: #aefcd4;
+  --color-brand-300: #79f2b8;
+  --color-brand-400: #3fe096;
+  --color-brand-500: #17c47a;
+  --color-brand-600: #049e61;
+  --color-brand-700: #027d4e;
+  --color-brand-800: #036441;
+  --color-brand-900: #035337;
+}
+
+:root[data-accent='peach'] {
+  --color-canvas: #fff8f3;
+  --color-surface-sunken: #ffecdd;
+  --color-brand-50: #fff5ee;
+  --color-brand-100: #ffe6d4;
+  --color-brand-200: #ffc8a8;
+  --color-brand-300: #ffa170;
+  --color-brand-400: #ff7a3d;
+  --color-brand-500: #f2560f;
+  --color-brand-600: #d13a00;
+  --color-brand-700: #ab2d04;
+  --color-brand-800: #8c2709;
+  --color-brand-900: #74230b;
+}
+
+:root[data-accent='grape'] {
+  --color-canvas: #f9f5ff;
+  --color-surface-sunken: #efe6ff;
+  --color-brand-50: #f7f2ff;
+  --color-brand-100: #ecdefe;
+  --color-brand-200: #d9bcfd;
+  --color-brand-300: #c093f8;
+  --color-brand-400: #a566f0;
+  --color-brand-500: #8a3fe0;
+  --color-brand-600: #7422c9;
+  --color-brand-700: #5f14a4;
+  --color-brand-800: #4f0f89;
+  --color-brand-900: #430b74;
+}
+
+/*
   Dark mode
   ---------
-  The app resolves the user's preference to a concrete `light` or `dark` and
-  writes it to `<html data-theme>`, so a system preference needs no media query
-  here. Warm neutrals are kept (same hue family as light) and the brand ramp is
-  re-tuned: tints become dark surfaces, the mid tones lighten so brand-700 works
-  both as a button background and as readable text.
+  The app resolves the preference to a concrete `light` or `dark` and writes it to
+  `<html data-theme>`, so a system preference needs no media query here.
+
+  Dark is where a palette can look muddy, so each one re-tunes the whole ramp
+  rather than just dimming the light values: the low steps become tinted dark
+  surfaces, and 600-900 turn bright and candy-like so they stay readable as text
+  and as button fills. The neutrals are tinted to match, so no palette is a
+  coloured accent sitting on someone else's grey.
 */
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --color-canvas: #16150f;
-  --color-surface: #201f1a;
-  --color-surface-sunken: #131210;
-  --color-line: #302e28;
-  --color-line-strong: #45423a;
+  /* Bubblegum (default) */
+  --color-canvas: #1a1017;
+  --color-surface: #241520;
+  --color-surface-sunken: #150c11;
+  --color-line: #3a2431;
+  --color-line-strong: #54364a;
 
-  --color-ink: #f3f1ea;
-  --color-ink-muted: #b3b0a5;
-  --color-ink-subtle: #8d8a80;
-  --color-ink-inverse: #17160f;
+  --color-ink: #fdf3f7;
+  --color-ink-muted: #cbb2bd;
+  --color-ink-subtle: #a48d99;
+  --color-ink-inverse: #1a1017;
 
-  --color-brand-50: #14261f;
-  --color-brand-100: #1c3629;
-  --color-brand-200: #26503b;
-  --color-brand-300: #326b4f;
-  --color-brand-400: #418a66;
-  --color-brand-500: #4d9d75;
-  --color-brand-600: #63b98c;
-  --color-brand-700: #7fcda2;
-  --color-brand-800: #a3ddbe;
-  --color-brand-900: #c7ead6;
+  --color-brand-50: #3a1226;
+  --color-brand-100: #4e1833;
+  --color-brand-200: #6b2148;
+  --color-brand-300: #8d2a5f;
+  --color-brand-400: #b93a78;
+  --color-brand-500: #e05596;
+  --color-brand-600: #ff7ab4;
+  --color-brand-700: #ff9fca;
+  --color-brand-800: #ffc4e0;
+  --color-brand-900: #ffe3ef;
 
-  --color-caution-50: #2b2210;
-  --color-caution-100: #3a2e14;
-  --color-caution-500: #d9a63c;
-  --color-caution-700: #e8c46c;
-  --color-caution-900: #f2d68f;
+  --color-caution-50: #322510;
+  --color-caution-100: #43310a;
+  --color-caution-500: #f0b93f;
+  --color-caution-700: #ffd977;
+  --color-caution-900: #ffeaa8;
 
-  --color-critical-50: #2c1715;
-  --color-critical-100: #3d1d1a;
-  --color-critical-500: #d1685e;
-  --color-critical-600: #dd8076;
-  --color-critical-700: #e89a91;
+  --color-critical-50: #341614;
+  --color-critical-100: #481a17;
+  --color-critical-500: #ef7a6e;
+  --color-critical-600: #ff938a;
+  --color-critical-700: #ffb4ad;
 
-  --color-accent-50: #16232f;
-  --color-accent-100: #1d3143;
-  --color-accent-500: #6a9acb;
-  --color-accent-700: #9cc0e4;
+  --color-accent-50: #10243a;
+  --color-accent-100: #16324e;
+  --color-accent-500: #62b5f5;
+  --color-accent-700: #a3d8ff;
 
-  --color-protein: #7fb0e0;
-  --color-carbs: #e0b558;
-  --color-fat: #c193d4;
-  --color-fiber: #7fc3a2;
+  --color-protein: #86b8f0;
+  --color-carbs: #f5c862;
+  --color-fat: #d59fe0;
+  --color-fiber: #86dcb0;
 
   /* Shadows read as depth only, so they soften in dark mode */
   --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.32), 0 1px 1px rgb(0 0 0 / 0.2);
   --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.24);
   --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.3);
+}
+
+:root[data-theme='dark'][data-accent='sky'] {
+  --color-canvas: #0d1620;
+  --color-surface: #141f2b;
+  --color-surface-sunken: #0a1119;
+  --color-line: #23374a;
+  --color-line-strong: #34506b;
+  --color-ink: #eff8ff;
+  --color-ink-muted: #b0c8dd;
+  --color-ink-subtle: #869eb4;
+  --color-ink-inverse: #0d1620;
+  --color-brand-50: #0d2740;
+  --color-brand-100: #123654;
+  --color-brand-200: #184a72;
+  --color-brand-300: #1f6099;
+  --color-brand-400: #2b7cc4;
+  --color-brand-500: #4595e0;
+  --color-brand-600: #6fb3f5;
+  --color-brand-700: #99cbfb;
+  --color-brand-800: #c2e2fd;
+  --color-brand-900: #e2f2fe;
+}
+
+:root[data-theme='dark'][data-accent='mint'] {
+  --color-canvas: #0a1a15;
+  --color-surface: #10241d;
+  --color-surface-sunken: #07120e;
+  --color-line: #1d3b31;
+  --color-line-strong: #2b5748;
+  --color-ink: #eefff7;
+  --color-ink-muted: #a9cfc0;
+  --color-ink-subtle: #7fa795;
+  --color-ink-inverse: #0a1a15;
+  --color-brand-50: #0b3327;
+  --color-brand-100: #0f4434;
+  --color-brand-200: #156045;
+  --color-brand-300: #1c805a;
+  --color-brand-400: #27a473;
+  --color-brand-500: #35c48d;
+  --color-brand-600: #5ad9a7;
+  --color-brand-700: #86e5bf;
+  --color-brand-800: #b2efd6;
+  --color-brand-900: #d6f7ea;
+}
+
+:root[data-theme='dark'][data-accent='peach'] {
+  --color-canvas: #1d1410;
+  --color-surface: #271b14;
+  --color-surface-sunken: #150e0a;
+  --color-line: #402c1f;
+  --color-line-strong: #5c402c;
+  --color-ink: #fff5ef;
+  --color-ink-muted: #dcc0ac;
+  --color-ink-subtle: #b39a87;
+  --color-ink-inverse: #1d1410;
+  --color-brand-50: #3a1a0c;
+  --color-brand-100: #4e2410;
+  --color-brand-200: #6b3315;
+  --color-brand-300: #8d451b;
+  --color-brand-400: #b85820;
+  --color-brand-500: #e06c28;
+  --color-brand-600: #ff8a4a;
+  --color-brand-700: #ffa876;
+  --color-brand-800: #ffc6a2;
+  --color-brand-900: #ffdfcb;
+}
+
+:root[data-theme='dark'][data-accent='grape'] {
+  --color-canvas: #150f1e;
+  --color-surface: #1e1629;
+  --color-surface-sunken: #0f0a16;
+  --color-line: #33254a;
+  --color-line-strong: #4a3767;
+  --color-ink: #f7f2ff;
+  --color-ink-muted: #c4b3e0;
+  --color-ink-subtle: #9d8bba;
+  --color-ink-inverse: #150f1e;
+  --color-brand-50: #25103f;
+  --color-brand-100: #32164f;
+  --color-brand-200: #462069;
+  --color-brand-300: #5c2b8a;
+  --color-brand-400: #7438af;
+  --color-brand-500: #8c4ad0;
+  --color-brand-600: #a96ceb;
+  --color-brand-700: #c48ff5;
+  --color-brand-800: #dcb1fa;
+  --color-brand-900: #eed4fd;
 }
 
 @layer base {
@@ -258,6 +431,15 @@
 @layer utilities {
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /*
+   * Footer padding for sheets and dialogs. Kept separate from .safe-bottom
+   * because that utility replaces any padding-bottom on the same element, which
+   * left footers with no breathing room on devices without a safe-area inset.
+   */
+  .footer-pad {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
   .safe-top {

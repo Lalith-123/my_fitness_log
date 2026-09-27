@@ -41,10 +41,6 @@ export async function logWeight(date: string, weightKg: number): Promise<WeightL
   return log;
 }
 
-export async function deleteWeightLog(logId: string): Promise<void> {
-  await db.weightLogs.delete(logId);
-}
-
 export function getLatestWeightLog(logs: WeightLog[]): WeightLog | undefined {
   return logs.length > 0 ? logs[logs.length - 1] : undefined;
 }

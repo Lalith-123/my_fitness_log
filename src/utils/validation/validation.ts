@@ -39,6 +39,8 @@ export const LIMITS = {
   caloriesPer100g: { min: 0, max: 1000 },
   macroPer100g: { min: 0, max: 100 },
   fiberPer100g: { min: 0, max: 50 },
+  /** Manual resting and maintenance energy the user may enter in kcal per day. */
+  energyKcal: { min: 800, max: 6000 },
 } as const;
 
 export function validateName(value: unknown): FieldResult {
@@ -64,6 +66,20 @@ export function validateHeightCm(value: unknown): FieldResult {
 export function validateWeightKg(value: unknown): FieldResult {
   if (!isFiniteNumberInRange(value, LIMITS.weightKg.min, LIMITS.weightKg.max)) {
     return fail(`Enter a weight between ${LIMITS.weightKg.min} and ${LIMITS.weightKg.max} kg.`);
+  }
+  return VALID;
+}
+
+/**
+ * Validates an optional user-supplied energy figure. `undefined` and empty are
+ * valid, because leaving the field blank means "use the calculated estimate".
+ */
+export function validateEnergyKcal(value: unknown, label: string): FieldResult {
+  if (value === undefined || value === null || value === '') return VALID;
+  if (!isFiniteNumberInRange(value, LIMITS.energyKcal.min, LIMITS.energyKcal.max)) {
+    return fail(
+      `Enter ${label} between ${LIMITS.energyKcal.min} and ${LIMITS.energyKcal.max} kcal, or leave it blank to use the estimate.`,
+    );
   }
   return VALID;
 }

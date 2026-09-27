@@ -1,4 +1,5 @@
 import { isValidDateKey, isValidTimestamp } from '@/utils/dates/dates';
+import { DEFAULT_ACCENT, isAccentPreference } from '@/app/theme';
 import { BACKUP_APP_ID, BACKUP_SCHEMA_VERSION, type BackupPayload } from '@/services/export/backup';
 import type {
   AppSettings,
@@ -65,6 +66,13 @@ function validateProfile(value: unknown): UserProfile | null {
   if (!isFinitePositive(value.heightCm)) throw new Error('Profile height is invalid.');
   if (!isFinitePositive(value.currentWeightKg)) throw new Error('Profile weight is invalid.');
   if (!isOneOf(value.activityLevel, ACTIVITY_LEVELS)) throw new Error('Profile activity level is invalid.');
+  // Optional user-supplied energy figures, validated only when present so that
+  // backups taken before they existed still restore.
+  for (const key of ['bmrOverride', 'tdeeOverride', 'targetOverride'] as const) {
+    if (value[key] !== undefined && !isFinitePositive(value[key])) {
+      throw new Error(`Profile ${key} is invalid.`);
+    }
+  }
   if (!isValidTimestamp(value.createdAt) || !isValidTimestamp(value.updatedAt)) {
     throw new Error('Profile timestamps are invalid.');
   }
@@ -186,7 +194,13 @@ function validateSettings(value: unknown): AppSettings | null {
   if (!isValidTimestamp(value.createdAt) || !isValidTimestamp(value.updatedAt)) {
     throw new Error('Settings timestamps are invalid.');
   }
-  return value as unknown as AppSettings;
+  // Accent was added after the first backups existed, and the palettes have been
+  // renamed since. An absent or unrecognised value means "use the default" rather
+  // than a corrupt record, so old files still restore instead of failing outright.
+  return {
+    ...(value as unknown as AppSettings),
+    accent: isAccentPreference(value.accent) ? value.accent : DEFAULT_ACCENT,
+  };
 }
 
 function validateFavorites(value: unknown): FavoriteEntry[] {

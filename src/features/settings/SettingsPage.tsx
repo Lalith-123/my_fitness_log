@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Download, FileUp, Trash2 } from 'lucide-react';
+import { Download, FileUp } from 'lucide-react';
 import { PageHeader } from '@/components/layout/AppShell';
 import { Button } from '@/components/common/Button';
 import { Card, Row, StatList } from '@/components/common/Card';
 import { Dialog } from '@/components/common/Dialog';
-import { ConfirmDialog } from '@/components/common/Dialog';
 import { SegmentedControl } from '@/components/common/SegmentedControl';
 import { SelectField } from '@/components/common/SelectField';
 import { useToast } from '@/components/common/Toast';
@@ -29,8 +27,10 @@ import { getAvailableMonths, type MonthOption } from '@/services/analytics/month
 import { exportMonthlyCsv } from '@/services/export/csv';
 import { exportFullBackup, isBackupEmpty, readBackupFile } from '@/services/export/backup';
 import { validateBackup } from '@/services/import/validate';
-import { clearAllData, restoreBackup, type ImportMode } from '@/services/import/restore';
-import { setTheme } from '@/services/settings/settings';
+import { restoreBackup, type ImportMode } from '@/services/import/restore';
+import { setAccent, setTheme } from '@/services/settings/settings';
+import { AccentPicker } from '@/components/common/AccentPicker';
+import { DEFAULT_ACCENT, resolveScheme } from '@/app/theme';
 import { formatDayMonth, getMonthKey, getTodayLocalDate, MONTH_LABELS } from '@/utils/dates/dates';
 import { formatNumber } from '@/utils/numbers/numbers';
 import type { ThemePreference } from '@/types';
@@ -38,7 +38,6 @@ import type { ThemePreference } from '@/types';
 type ImportStep = 'idle' | 'chooseMode' | 'restoring' | 'done';
 
 export function SettingsPage() {
-  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const profile = useProfile();
@@ -53,7 +52,6 @@ export function SettingsPage() {
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [goalOpen, setGoalOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -160,20 +158,6 @@ export function SettingsPage() {
     }
   };
 
-  const handleDeleteAll = async () => {
-    setConfirmDelete(false);
-    setBusy(true);
-    try {
-      await clearAllData();
-      showToast('All of your data has been deleted.', 'success');
-      navigate('/');
-    } catch {
-      showToast('Could not delete your data. Please try again.', 'caution');
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <div className="flex flex-col">
       <PageHeader title="Settings" description="Your profile, goal, data and privacy." />
@@ -189,7 +173,6 @@ export function SettingsPage() {
                 <Row label="Sex" value={profile.sex === 'male' ? 'Male' : profile.sex === 'female' ? 'Female' : 'Prefer not to say'} />
                 <Row label="Height" value={`${formatNumber(profile.heightCm, 0)} cm`} />
                 <Row label="Current weight" value={`${formatNumber(profile.currentWeightKg, 1)} kg`} />
-                <Row label="Activity" value={ACTIVITY_LABEL[profile.activityLevel]} />
               </StatList>
               <Button variant="secondary" size="sm" className="mt-3" onClick={() => setProfileOpen(true)}>
                 Edit profile
@@ -262,6 +245,16 @@ export function SettingsPage() {
               { value: 'dark', label: 'Dark' },
             ]}
           />
+          <div className="mt-4">
+            <p className="mb-2 text-[13px] font-medium text-ink-muted">Accent colour</p>
+            <AccentPicker
+              value={settings?.accent ?? DEFAULT_ACCENT}
+              onChange={(value) => {
+                void setAccent(value);
+              }}
+              scheme={resolveScheme(settings?.theme ?? 'system')}
+            />
+          </div>
           <p className="mt-3 text-[11px] text-ink-subtle">Measurements are in metric (g, kg, cm).</p>
         </Card>
 
@@ -355,24 +348,6 @@ export function SettingsPage() {
           </p>
         </Card>
 
-        <Card>
-          <h2 className="text-[14px] font-semibold text-critical-700">Delete all data</h2>
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
-            Removes your profile, goals, meals, weight history, settings and any foods you created.
-            The built-in food list stays, so the app still works. This cannot be undone.
-          </p>
-          <Button
-            variant="danger"
-            size="sm"
-            className="mt-3"
-            disabled={busy}
-            leadingIcon={<Trash2 size={15} strokeWidth={2} aria-hidden="true" />}
-            onClick={() => setConfirmDelete(true)}
-          >
-            Delete everything
-          </Button>
-        </Card>
-
         <p className="text-[11px] leading-relaxed text-ink-subtle">{MEDICAL_DISCLAIMER}</p>
       </div>
 
@@ -452,17 +427,6 @@ export function SettingsPage() {
           <p className="text-[12px] leading-relaxed text-ink-muted">{importSummary}</p>
         </div>
       </Dialog>
-
-      <ConfirmDialog
-        open={confirmDelete}
-        title="Delete all of your data?"
-        message="Your profile, goals, meals, weight history, settings and custom foods are removed. The built-in food list stays. This cannot be undone."
-        confirmLabel="Delete everything"
-        destructive
-        busy={busy}
-        onConfirm={handleDeleteAll}
-        onCancel={() => setConfirmDelete(false)}
-      />
     </div>
   );
 }
@@ -476,11 +440,4 @@ const GOAL_LABEL = {
   lose: 'Fat loss',
   gain: 'Lean gain',
   maintain: 'Maintenance',
-} as const;
-
-const ACTIVITY_LABEL = {
-  sedentary: 'Mostly sitting',
-  light: 'Lightly active',
-  moderate: 'Moderately active',
-  active: 'Very active',
 } as const;

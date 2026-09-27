@@ -1,7 +1,7 @@
 import { db } from '@/db/database';
 import { createId, nowIso } from '@/utils/id';
 import { round } from '@/utils/numbers/numbers';
-import { validateAge, validateHeightCm, validateName, validateWeightKg } from '@/utils/validation/validation';
+import { validateAge, validateEnergyKcal, validateHeightCm, validateName, validateWeightKg } from '@/utils/validation/validation';
 import type { ActivityLevel, Sex, UserProfile } from '@/types';
 
 export const PROFILE_ID = 'primary';
@@ -12,7 +12,12 @@ export const SEX_OPTIONS: { value: Sex; label: string }[] = [
   { value: 'other', label: 'Other' },
 ];
 
-export const ACTIVITY_OPTIONS: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'active'];
+/**
+ * Activity is not collected from the user. Every profile gets the same level, and
+ * the daily energy figures can be overridden per person in the profile editor
+ * when the estimate is wrong.
+ */
+export const DEFAULT_ACTIVITY_LEVEL: ActivityLevel = 'light';
 
 export interface ProfileInput {
   name: string;
@@ -21,6 +26,10 @@ export interface ProfileInput {
   heightCm: number;
   currentWeightKg: number;
   activityLevel: ActivityLevel;
+  /** User-supplied energy figures, or undefined to use the calculated estimate. */
+  bmrOverride?: number;
+  tdeeOverride?: number;
+  targetOverride?: number;
 }
 
 export function validateProfileInput(input: ProfileInput): string | null {
@@ -29,8 +38,28 @@ export function validateProfileInput(input: ProfileInput): string | null {
     validateAge(input.age).message ??
     validateHeightCm(input.heightCm).message ??
     validateWeightKg(input.currentWeightKg).message ??
+    validateEnergyKcal(input.bmrOverride, 'resting energy').message ??
+    validateEnergyKcal(input.tdeeOverride, 'maintenance energy').message ??
+    validateEnergyKcal(input.targetOverride, 'a daily calorie target').message ??
     null
   );
+}
+
+/** Applies the override triple, removing the keys entirely when a value is cleared. */
+function withEnergyOverrides(
+  profile: UserProfile,
+  input: Pick<ProfileInput, 'bmrOverride' | 'tdeeOverride' | 'targetOverride'>,
+): UserProfile {
+  const pairs = [
+    ['bmrOverride', input.bmrOverride],
+    ['tdeeOverride', input.tdeeOverride],
+    ['targetOverride', input.targetOverride],
+  ] as const;
+  for (const [key, value] of pairs) {
+    if (value == null) delete profile[key];
+    else profile[key] = round(value);
+  }
+  return profile;
 }
 
 export async function getProfile(): Promise<UserProfile | undefined> {
@@ -53,7 +82,7 @@ export async function createProfile(input: ProfileInput): Promise<UserProfile> {
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  await db.profiles.put(profile);
+  await db.profiles.put(withEnergyOverrides(profile, input));
   return profile;
 }
 
@@ -63,18 +92,23 @@ export async function updateProfile(input: ProfileInput): Promise<UserProfile> {
   const error = validateProfileInput(input);
   if (error) throw new Error(error);
 
-  await db.profiles.update(PROFILE_ID, {
-    name: input.name.trim(),
-    age: input.age,
-    sex: input.sex,
-    heightCm: round(input.heightCm, 1),
-    currentWeightKg: round(input.currentWeightKg, 2),
-    activityLevel: input.activityLevel,
-    updatedAt: nowIso(),
-  });
-  const updated = await getProfile();
-  if (!updated) throw new Error('Profile not found.');
-  return updated;
+  // Replaced rather than patched, because clearing an override has to remove the
+  // stored key instead of writing undefined over it.
+  const next = withEnergyOverrides(
+    {
+      ...existing,
+      name: input.name.trim(),
+      age: input.age,
+      sex: input.sex,
+      heightCm: round(input.heightCm, 1),
+      currentWeightKg: round(input.currentWeightKg, 2),
+      activityLevel: input.activityLevel,
+      updatedAt: nowIso(),
+    },
+    input,
+  );
+  await db.profiles.put(next);
+  return next;
 }
 
 /** Used by onboarding to guarantee a row exists even if the id is missing. */
