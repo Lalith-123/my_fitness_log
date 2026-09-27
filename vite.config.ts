@@ -4,12 +4,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// GitHub Pages serves this app from a repository subpath rather than the domain
-// root, so every asset URL has to be prefixed with it. Local dev keeps the root.
-const base = process.env.BASE_PATH ?? '/';
-
 export default defineConfig({
-  base,
   plugins: [
     react(),
     tailwindcss(),
@@ -24,8 +19,8 @@ export default defineConfig({
         background_color: '#faf9f6',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: base,
-        scope: base,
+        start_url: '/',
+        scope: '/',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
@@ -54,4 +49,5 @@ export default defineConfig({
     target: 'es2020',
     sourcemap: false,
   },
+  base:'/my_fitness_log/'
 });
