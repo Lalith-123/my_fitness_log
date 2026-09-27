@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Download, FileUp } from 'lucide-react';
+import { Download, FileUp, Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/AppShell';
 import { Button } from '@/components/common/Button';
 import { Card, Row, StatList } from '@/components/common/Card';
-import { Dialog } from '@/components/common/Dialog';
+import { ConfirmDialog, Dialog } from '@/components/common/Dialog';
 import { SegmentedControl } from '@/components/common/SegmentedControl';
 import { SelectField } from '@/components/common/SelectField';
 import { useToast } from '@/components/common/Toast';
@@ -27,7 +27,7 @@ import { getAvailableMonths, type MonthOption } from '@/services/analytics/month
 import { exportMonthlyCsv } from '@/services/export/csv';
 import { exportFullBackup, isBackupEmpty, readBackupFile } from '@/services/export/backup';
 import { validateBackup } from '@/services/import/validate';
-import { restoreBackup, type ImportMode } from '@/services/import/restore';
+import { clearAllData, restoreBackup, type ImportMode } from '@/services/import/restore';
 import { setAccent, setTheme } from '@/services/settings/settings';
 import { AccentPicker } from '@/components/common/AccentPicker';
 import { DEFAULT_ACCENT, resolveScheme } from '@/app/theme';
@@ -53,6 +53,9 @@ export function SettingsPage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [goalOpen, setGoalOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingBackup, setPendingBackup] = useState<Parameters<typeof restoreBackup>[0] | null>(null);
@@ -104,6 +107,21 @@ export function SettingsPage() {
       showToast('Could not create the backup file.', 'caution');
     } finally {
       setBusy(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    setDeleting(true);
+    try {
+      await clearAllData();
+      // Clearing the profile and the onboarding flag is enough: useIsOnboarded
+      // is a live query, so the app drops into onboarding on its own.
+      showToast('All data deleted. Starting fresh.', 'success');
+      setDeleteOpen(false);
+    } catch {
+      showToast('Could not delete your data. Please try again.', 'caution');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -348,8 +366,47 @@ export function SettingsPage() {
           </p>
         </Card>
 
+        <Card>
+          <h2 className="text-[14px] font-semibold text-ink">Delete all data</h2>
+          <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
+            Permanently erases your profile, meals, weight history, goals, custom foods and settings
+            from this device, then starts the setup again from the beginning. This cannot be undone.
+            Download a backup first if you might want any of it back.
+          </p>
+          <Button
+            variant="danger"
+            size="sm"
+            className="mt-3"
+            fullWidth
+            disabled={busy || deleting}
+            leadingIcon={<Trash2 size={15} strokeWidth={2} aria-hidden="true" />}
+            onClick={() => setDeleteOpen(true)}
+          >
+            Delete all data
+          </Button>
+        </Card>
+
         <p className="text-[11px] leading-relaxed text-ink-subtle">{MEDICAL_DISCLAIMER}</p>
       </div>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete all data?"
+        message={
+          <>
+            <p>
+              This permanently erases everything you have logged on this device and starts the setup
+              again.
+            </p>
+            <p className="mt-2">This cannot be undone.</p>
+          </>
+        }
+        confirmLabel="Yes, delete everything"
+        destructive
+        busy={deleting}
+        onConfirm={() => void handleDeleteAll()}
+        onCancel={() => setDeleteOpen(false)}
+      />
 
       <ProfileEditor
         open={profileOpen}
