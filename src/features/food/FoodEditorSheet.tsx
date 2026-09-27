@@ -191,15 +191,12 @@ export function FoodEditorSheet({
       const created = await createUserFood(input);
       const resolved = await getResolvedFood(created.id);
       if (!resolved) throw new Error('The new food could not be read back. Please try again.');
-      if (onAddNowRequest) {
-        showToast(`${resolved.name} saved.`, 'success');
-        onSaved?.(resolved);
-        onAddNowRequest(resolved);
-        onClose();
-      } else {
-        setPendingFood(resolved);
-        setConfirmAdd(true);
-      }
+      // The food is saved either way, so always ask what to do next rather
+      // than assuming. Callers decide what "add to a meal" means for them.
+      onSaved?.(resolved);
+      onClose();
+      setPendingFood(resolved);
+      setConfirmAdd(true);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Unable to save this food.');
     } finally {
@@ -214,10 +211,10 @@ export function FoodEditorSheet({
     if (!target) return;
     onSaved?.(target);
     if (addNow) {
-      showToast(`${target.name} created.`, 'success');
+      showToast(`${target.name} saved. Enter the amount to add it.`, 'success');
       onAddNowRequest?.(target);
     } else {
-      showToast(`${target.name} saved.`, 'success');
+      showToast(`${target.name} saved to your foods.`, 'success');
     }
     onClose();
   };
@@ -401,10 +398,10 @@ export function FoodEditorSheet({
 
       <ConfirmDialog
         open={confirmAdd}
-        title="Add to a meal?"
-        message="This food is saved to your list. Log it now, or keep it for later?"
-        confirmLabel="Log now"
-        cancelLabel="Save only"
+        title="Food saved"
+        message="It has been added to your food list. You can add it to a meal now, or find it later by searching your foods."
+        confirmLabel="Add to a meal"
+        cancelLabel="Not now"
         onConfirm={() => handleSavedChoice(true)}
         onCancel={() => handleSavedChoice(false)}
       />

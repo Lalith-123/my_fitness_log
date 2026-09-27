@@ -29,6 +29,8 @@ export function FoodPage() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<ResolvedFood | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  /** Set when a newly created food should go straight into the picker's quantity step. */
+  const [pickerFoodId, setPickerFoodId] = useState<string | null>(null);
 
   // The mobile tab bar's centre action lands on /food?add=1 — open the picker.
   const wantsPicker = searchParams.get('add') === '1';
@@ -38,6 +40,7 @@ export function FoodPage() {
 
   const closePicker = () => {
     setPickerOpen(false);
+    setPickerFoodId(null);
     if (wantsPicker) {
       const next = new URLSearchParams(searchParams);
       next.delete('add');
@@ -194,6 +197,13 @@ export function FoodPage() {
         onSaved={() => {
           setEditorOpen(false);
         }}
+        onAddNowRequest={(created) => {
+          // Hand the new food to the picker so it opens on the quantity step
+          // with the portion already filled in.
+          setEditorOpen(false);
+          setPickerFoodId(created.id);
+          setPickerOpen(true);
+        }}
       />
 
       <FoodPickerSheet
@@ -201,6 +211,7 @@ export function FoodPage() {
         onClose={closePicker}
         date={getTodayLocalDate()}
         defaultMealType={suggestMealTypeForTime(new Date().getHours())}
+        initialFoodId={pickerFoodId}
       />
     </div>
   );
