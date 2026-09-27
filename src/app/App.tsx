@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastProvider, useToast } from '@/components/common/Toast';
 import { AppShell } from '@/components/layout/AppShell';
@@ -41,11 +41,18 @@ function AppRoutes() {
   // latest weight changes.
   const { status } = useAppBootstrap(handleGoalCompleted);
 
-  // Move focus to the page heading on navigation for screen reader users.
-  useEffect(() => {
+  // Every page opens at the top. This has to run in a layout effect: a passive
+  // effect fires after the browser has already painted the new page, which
+  // leaves a frame of the old scroll offset visible and lets scroll anchoring
+  // settle back onto it. Disabling the browser's own restoration stops it
+  // re-applying a saved position on back/forward.
+  useLayoutEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
     const main = document.getElementById('main-content');
-    if (main) main.scrollTo?.({ top: 0 });
-    window.scrollTo({ top: 0 });
+    if (main) main.scrollTo({ top: 0, left: 0 });
+    window.scrollTo({ top: 0, left: 0 });
   }, [location.pathname]);
 
   if (status === 'error') return <StorageErrorScreen />;
