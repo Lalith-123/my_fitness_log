@@ -73,7 +73,7 @@ function MobileHeader({
 }: MobileHeaderProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-canvas/92 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-[560px] items-center gap-2 px-4 py-2.5 safe-top">
+      <div className="mx-auto flex w-full max-w-[560px] items-center gap-2 px-4 header-pad">
         <button
           type="button"
           onClick={onToggleMenu}

@@ -442,6 +442,12 @@
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
+  /* Same idea as .footer-pad, for the sticky mobile header. */
+  .header-pad {
+    padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    padding-bottom: 0.5rem;
+  }
+
   .safe-top {
     padding-top: env(safe-area-inset-top, 0px);
   }
