@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0"
+    />
+    <meta name="theme-color" content="#faf9f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16150f" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="description"
+      content="A private, local-first calorie and weight tracker. Your data stays on this device."
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Fitness Log" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <title>Fitness Log</title>
+    <script>
+      // Resolve the theme and accent before first paint so the page never flashes
+      // the wrong colours. Kept in sync with src/hooks/useTheme.ts.
+      (function () {
+        var root = document.documentElement;
+        try {
+          var t = localStorage.getItem('fl.theme');
+          if (t !== 'light' && t !== 'dark' && t !== 'system') t = 'system';
+          var scheme =
+            t === 'system'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : t;
+          root.dataset.theme = scheme;
+          root.style.colorScheme = scheme;
+
+          var a = localStorage.getItem('fl.accent');
+          if (['bubblegum', 'sky', 'mint', 'peach', 'grape'].indexOf(a) === -1) a = 'bubblegum';
+          root.dataset.accent = a;
+        } catch (error) {
+          root.dataset.theme = 'light';
+          root.dataset.accent = 'bubblegum';
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/my_fitness_log/assets/index-BrNbeAZa.js"></script>
+    <link rel="stylesheet" crossorigin href="/my_fitness_log/assets/index-AyQut8VL.css">
+  <link rel="manifest" href="/my_fitness_log/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/my_fitness_log/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
