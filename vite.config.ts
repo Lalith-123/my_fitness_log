@@ -49,5 +49,5 @@ export default defineConfig({
     target: 'es2020',
     sourcemap: false,
   },
-  base:'/my_fitness_log/'
+  base: process.env.BASE_PATH ?? '/',
 });
