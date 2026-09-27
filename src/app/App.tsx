@@ -14,7 +14,9 @@ import { Button } from '@/components/common/Button';
 
 export function App() {
   return (
-    <BrowserRouter>
+    // BASE_URL carries the GitHub Pages subpath, so routes like /history resolve
+    // correctly when the app is served from a repository subfolder.
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <ToastProvider>
         <AppRoutes />
       </ToastProvider>

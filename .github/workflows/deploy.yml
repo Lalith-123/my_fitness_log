@@ -1,0 +1,66 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Also allow publishing from the Actions tab without a commit.
+  workflow_dispatch:
+
+# Required for the deploy job to mint a Pages access token.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deploys at once, and let a newer commit supersede a queued one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - name: Build
+        # The subpath the site is served from, e.g. /my_fitness_log/.
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: npm run build
+
+      # GitHub Pages would otherwise run the output through Jekyll, which
+      # silently drops files and folders whose names begin with an underscore.
+      - name: Disable Jekyll processing
+        run: touch dist/.nojekyll
+
+      # This is a client-side routed app, so a deep link such as /history has to
+      # fall back to index.html. Without this, refreshing any route but the home
+      # page returns a 404.
+      - name: Add SPA fallback
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
