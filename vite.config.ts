@@ -49,5 +49,18 @@ export default defineConfig({
     target: 'es2020',
     sourcemap: false,
   },
-  base: process.env.BASE_PATH ?? '/',
+  // Where the built app is served from, which has to match the host:
+  //
+  //   GitHub Pages  a project site lives under /<repo-name>/, so assets have to
+  //                 be prefixed or every one of them 404s
+  //   Vercel        serves the domain root, so the prefix must be absent
+  //   local dev     root, same as Vercel
+  //
+  // BASE_PATH is the explicit override and wins when set: the Pages workflow
+  // passes the real path in, and `npm run deploy:pages` passes it on the command
+  // line. GITHUB_ACTIONS is the fallback so a workflow run is still correct even
+  // if that variable is ever dropped.
+  base:
+    process.env.BASE_PATH ??
+    (process.env.GITHUB_ACTIONS === 'true' ? '/my_fitness_log/' : '/'),
 });
