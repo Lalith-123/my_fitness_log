@@ -46,6 +46,11 @@ function AppRoutes() {
   // leaves a frame of the old scroll offset visible and lets scroll anchoring
   // settle back onto it. Disabling the browser's own restoration stops it
   // re-applying a saved position on back/forward.
+  //
+  // `onboarded` matters as much as the pathname: onboarding is matched by
+  // path="*", so finishing it swaps onboarding for the dashboard without the
+  // URL changing. Keying on the path alone left the dashboard inheriting
+  // whatever offset the last onboarding step was scrolled to.
   useLayoutEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
@@ -53,7 +58,7 @@ function AppRoutes() {
     const main = document.getElementById('main-content');
     if (main) main.scrollTo({ top: 0, left: 0 });
     window.scrollTo({ top: 0, left: 0 });
-  }, [location.pathname]);
+  }, [location.pathname, onboarded]);
 
   if (status === 'error') return <StorageErrorScreen />;
   if (onboarded === undefined || status === 'loading') return <BootScreen />;
