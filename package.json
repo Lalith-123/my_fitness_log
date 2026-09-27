@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build && node scripts/postbuild.mjs",
     "build:pages": "tsc --noEmit && vite build --base=/my_fitness_log/ && node scripts/postbuild.mjs",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "npm run build:pages && gh-pages -d dist -t",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },
