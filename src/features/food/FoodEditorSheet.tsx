@@ -258,6 +258,7 @@ export function FoodEditorSheet({
       <BottomSheet
         open={open}
         onClose={onClose}
+        headerTone="brand"
         title={isEditing ? 'Edit food' : 'Create food'}
         description="Values are per 100 g of edible portion."
         footer={
@@ -301,6 +302,7 @@ export function FoodEditorSheet({
             <p className="mb-2 text-sm font-medium text-ink">Nutrition per 100 g</p>
             <div className="grid grid-cols-2 gap-3">
               <NumberField
+                stepperTone="brand"
                 label="Calories"
                 unit="kcal"
                 value={form.calories}
@@ -312,6 +314,7 @@ export function FoodEditorSheet({
                 required
               />
               <NumberField
+                stepperTone="brand"
                 label="Protein"
                 unit="g"
                 value={form.protein}
@@ -322,6 +325,7 @@ export function FoodEditorSheet({
                 required
               />
               <NumberField
+                stepperTone="brand"
                 label="Carbs"
                 unit="g"
                 value={form.carbs}
@@ -332,6 +336,7 @@ export function FoodEditorSheet({
                 required
               />
               <NumberField
+                stepperTone="brand"
                 label="Fat"
                 unit="g"
                 value={form.fat}
@@ -342,6 +347,7 @@ export function FoodEditorSheet({
                 required
               />
               <NumberField
+                stepperTone="brand"
                 label="Fiber"
                 unit="g"
                 value={form.fiber}
@@ -366,6 +372,7 @@ export function FoodEditorSheet({
                 maxLength={24}
               />
               <NumberField
+                stepperTone="brand"
                 label="Weight"
                 unit="g"
                 value={form.portionGrams}

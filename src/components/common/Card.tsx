@@ -12,7 +12,7 @@ export function Card({ children, className = '', flush = false, as: Tag = 'div' 
   return (
     <Tag
       className={[
-        'rounded-lg border border-line bg-surface',
+        'rounded-lg border border-line bg-brand-700',
         flush ? '' : 'p-4 sm:p-5',
         className,
       ]
@@ -63,8 +63,8 @@ export interface CardHeaderProps {
 export function CardHeader({ title, trailing, className = '' }: CardHeaderProps) {
   return (
     <div className={['flex items-center justify-between gap-3', className].filter(Boolean).join(' ')}>
-      <span className="text-[12px] font-medium text-ink-muted">{title}</span>
-      {trailing ? <span className="text-[11px] text-ink-subtle">{trailing}</span> : null}
+      <span className="text-[12px] font-medium text-white/90">{title}</span>
+      {trailing ? <span className="text-[11px] text-white/80">{trailing}</span> : null}
     </div>
   );
 }

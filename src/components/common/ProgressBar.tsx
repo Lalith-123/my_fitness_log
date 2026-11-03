@@ -39,8 +39,8 @@ export function ProgressBar({
   return (
     <div className={['flex flex-col gap-1.5', className].filter(Boolean).join(' ')}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-xs text-ink-muted">{label}</span>
-        <span className="text-xs font-medium text-ink-muted tnum">
+        <span className="text-xs text-white/90">{label}</span>
+        <span className="text-xs font-medium text-white/80 tnum">
           {trailing}
           {showValue ? `${round(value, 1)} / ${round(max, 1)}` : null}
         </span>

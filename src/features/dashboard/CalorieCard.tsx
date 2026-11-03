@@ -44,10 +44,10 @@ export function CalorieCard({
 
       <div className="mt-2 flex items-end justify-between gap-3">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[32px] leading-none font-semibold tracking-[-0.03em] text-ink tnum">
+          <span className="text-[32px] leading-none font-semibold tracking-[-0.03em] text-white tnum">
             {formatCalories(consumed)}
           </span>
-          <span className="text-[12px] text-ink-subtle tnum">/ {formatCalories(target)} kcal</span>
+          <span className="text-[12px] text-white/90 tnum">/ {formatCalories(target)} kcal</span>
         </div>
         {isReached ? (
           <span className="rounded-xs bg-brand-50 px-2 py-1 text-[11px] font-medium text-brand-700">

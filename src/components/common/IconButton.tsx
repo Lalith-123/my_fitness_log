@@ -3,15 +3,16 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react';
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** Required: every icon-only control needs an accessible name. */
   label: string;
-  variant?: 'ghost' | 'secondary' | 'quiet';
+  variant?: 'ghost' | 'secondary' | 'quiet' | 'inverse';
   size?: 'sm' | 'md';
   active?: boolean;
 }
 
 const VARIANTS = {
-  ghost: 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
+  ghost: 'text-ink-muted bg-surface-sunken hover:text-ink',
   quiet: 'bg-surface-sunken text-ink-muted hover:bg-line/70 hover:text-ink',
   secondary: 'border border-line-strong text-ink hover:bg-surface-sunken',
+  inverse: 'bg-white text-brand-700 hover:bg-brand-50 active:bg-brand-100',
 } as const;
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(

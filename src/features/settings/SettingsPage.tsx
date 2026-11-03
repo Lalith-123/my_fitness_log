@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/layout/AppShell';
 import { Button } from '@/components/common/Button';
 import { Card, Row, StatList } from '@/components/common/Card';
 import { ConfirmDialog, Dialog } from '@/components/common/Dialog';
-import { SegmentedControl } from '@/components/common/SegmentedControl';
 import { SelectField } from '@/components/common/SelectField';
 import { useToast } from '@/components/common/Toast';
 import { GoalEditor } from './GoalEditor';
@@ -28,12 +27,11 @@ import { exportMonthlyCsv } from '@/services/export/csv';
 import { exportFullBackup, isBackupEmpty, readBackupFile } from '@/services/export/backup';
 import { validateBackup } from '@/services/import/validate';
 import { clearAllData, restoreBackup, type ImportMode } from '@/services/import/restore';
-import { setAccent, setTheme } from '@/services/settings/settings';
+import { setAccent } from '@/services/settings/settings';
 import { AccentPicker } from '@/components/common/AccentPicker';
-import { DEFAULT_ACCENT, resolveScheme } from '@/app/theme';
+import { DEFAULT_ACCENT } from '@/app/theme';
 import { formatDayMonth, getMonthKey, getTodayLocalDate, MONTH_LABELS } from '@/utils/dates/dates';
 import { formatNumber } from '@/utils/numbers/numbers';
-import type { ThemePreference } from '@/types';
 
 type ImportStep = 'idle' | 'chooseMode' | 'restoring' | 'done';
 
@@ -246,31 +244,15 @@ export function SettingsPage() {
         <Card>
           <h2 className="text-[14px] font-semibold text-ink">Appearance</h2>
           <p className="mt-1 text-[12px] text-ink-muted">
-            Follows your device setting by default.
+            Choose the accent colour used across the app.
           </p>
-          <SegmentedControl
-            className="mt-3"
-            label="Theme"
-            fullWidth
-            size="sm"
-            value={settings?.theme ?? 'system'}
-            onChange={(value) => {
-              void setTheme(value as ThemePreference);
-            }}
-            options={[
-              { value: 'system', label: 'System' },
-              { value: 'light', label: 'Light' },
-              { value: 'dark', label: 'Dark' },
-            ]}
-          />
-          <div className="mt-4">
+          <div className="mt-3">
             <p className="mb-2 text-[13px] font-medium text-ink-muted">Accent colour</p>
             <AccentPicker
               value={settings?.accent ?? DEFAULT_ACCENT}
               onChange={(value) => {
                 void setAccent(value);
               }}
-              scheme={resolveScheme(settings?.theme ?? 'system')}
             />
           </div>
           <p className="mt-3 text-[11px] text-ink-subtle">Measurements are in metric (g, kg, cm).</p>

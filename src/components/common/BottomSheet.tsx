@@ -12,6 +12,8 @@ export interface BottomSheetProps {
   /** Sheet height on larger screens where it is centred. */
   desktopWidth?: 'sm' | 'md' | 'lg';
   headerAction?: ReactNode;
+  /** `brand` paints the title bar with the brand surface, like the page cards. */
+  headerTone?: 'default' | 'brand';
 }
 
 const FOCUSABLE =
@@ -30,7 +32,9 @@ export function BottomSheet({
   footer,
   desktopWidth = 'md',
   headerAction,
+  headerTone = 'default',
 }: BottomSheetProps) {
+  const isBrandHeader = headerTone === 'brand';
   const panelRef = useRef<HTMLDivElement>(null);
   useLockBodyScroll(open);
 
@@ -83,12 +87,29 @@ export function BottomSheet({
           widthClass,
         ].join(' ')}
       >
-        <div className="flex items-start justify-between gap-3 border-b border-line px-4 pt-3 pb-3 sm:px-5">
+        <div
+          className={[
+            'flex items-start justify-between gap-3 border-b px-4 pt-3 pb-3 sm:px-5',
+            isBrandHeader ? 'border-white/15 bg-brand-700' : 'border-line',
+          ].join(' ')}
+        >
           <div className="flex min-w-0 flex-col gap-0.5">
-            <h2 id="sheet-title" className="text-[15px] font-semibold text-ink">
+            <h2
+              id="sheet-title"
+              className={['text-[15px] font-semibold', isBrandHeader ? 'text-white' : 'text-ink'].join(' ')}
+            >
               {title}
             </h2>
-            {description ? <p className="text-xs leading-relaxed text-ink-muted">{description}</p> : null}
+            {description ? (
+              <p
+                className={[
+                  'text-xs leading-relaxed',
+                  isBrandHeader ? 'text-white/90' : 'text-ink-muted',
+                ].join(' ')}
+              >
+                {description}
+              </p>
+            ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {headerAction}
@@ -96,7 +117,12 @@ export function BottomSheet({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="-mr-1 flex h-9 w-9 items-center justify-center rounded-md text-ink-subtle transition-colors hover:bg-surface-sunken hover:text-ink"
+              className={[
+                'flex h-9 w-9 items-center justify-center rounded-md transition-colors',
+                isBrandHeader
+                  ? 'bg-white text-brand-700 hover:bg-brand-50'
+                  : '-mr-1 text-ink-subtle hover:bg-surface-sunken hover:text-ink',
+              ].join(' ')}
             >
               <X size={18} strokeWidth={2} aria-hidden="true" />
             </button>

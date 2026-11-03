@@ -18,10 +18,11 @@ export function DateNavigator({ date, firstDate, onChange }: DateNavigatorProps)
   const canGoForward = !isToday(date);
 
   return (
-    <div className="flex items-center justify-between gap-1">
+    <div className="flex items-center justify-between gap-1 bg-brand-700 px-3 py-2 text-white rounded-md">
       <IconButton
         label="Previous day"
         size="sm"
+        variant={canGoBack ? 'inverse' : 'ghost'}
         disabled={!canGoBack}
         onClick={() => onChange(addDays(date, -1))}
       >
@@ -30,7 +31,7 @@ export function DateNavigator({ date, firstDate, onChange }: DateNavigatorProps)
 
       <div className="flex min-w-0 flex-1 flex-col items-center gap-0.5">
         <div className="flex items-center gap-2">
-          <p className="truncate text-[15px] font-semibold tracking-[-0.01em] text-ink">
+          <p className="truncate text-[15px] font-semibold tracking-[-0.01em] text-white">
             {formatLongDate(date)}
           </p>
           {isToday(date) ? (
@@ -49,6 +50,7 @@ export function DateNavigator({ date, firstDate, onChange }: DateNavigatorProps)
       <IconButton
         label="Next day"
         size="sm"
+        variant={canGoForward ? 'inverse' : 'ghost'}
         disabled={!canGoForward}
         onClick={() => onChange(addDays(date, 1))}
       >

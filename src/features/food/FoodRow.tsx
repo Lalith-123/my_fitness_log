@@ -60,7 +60,10 @@ export function FoodRow({
           onClick={() => onToggleFavorite(food)}
           aria-label={isFavorite ? `Remove ${food.name} from favourites` : `Add ${food.name} to favourites`}
           aria-pressed={isFavorite}
-          className="flex w-11 shrink-0 items-center justify-center self-center rounded-md text-ink-subtle transition-colors hover:text-ink"
+          className={[
+            'flex w-11 shrink-0 items-center justify-center self-center rounded-md transition-colors',
+            isFavorite ? 'text-brand-700' : 'text-ink-subtle hover:text-ink',
+          ].join(' ')}
         >
           <Star size={16} strokeWidth={2} fill={isFavorite ? 'currentColor' : 'none'} aria-hidden="true" />
         </button>

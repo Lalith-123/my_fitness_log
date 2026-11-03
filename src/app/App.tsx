@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { ToastProvider, useToast } from '@/components/common/Toast';
 import { AppShell } from '@/components/layout/AppShell';
 import { useAppBootstrap, useIsOnboarded } from '@/hooks/useAppData';
-import { useTheme } from '@/hooks/useTheme';
+import { useAccent } from '@/hooks/useAccent';
 import { OnboardingPage } from '@/features/onboarding/OnboardingPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { FoodPage } from '@/features/food/FoodPage';
@@ -28,7 +28,7 @@ function AppRoutes() {
   const location = useLocation();
   const onboarded = useIsOnboarded();
   const { showToast } = useToast();
-  useTheme();
+  useAccent();
 
   const handleGoalCompleted = useCallback(
     (message: string) => {

@@ -52,7 +52,6 @@ const GOAL_TYPES = ['lose', 'maintain', 'gain'] as const;
 const GOAL_STATUSES = ['active', 'completed'] as const;
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 const ACTIVITY_LEVELS = ['sedentary', 'light', 'moderate', 'active'] as const;
-const THEMES = ['system', 'light', 'dark'] as const;
 
 const MAX_RECORDS = 250_000;
 
@@ -188,7 +187,6 @@ function validateWeightLog(value: unknown, index: number): WeightLog {
 function validateSettings(value: unknown): AppSettings | null {
   if (value === null || value === undefined) return null;
   if (!isRecord(value)) throw new Error('Settings are not an object.');
-  if (!isOneOf(value.theme, THEMES)) throw new Error('Settings theme is invalid.');
   if (value.units !== 'metric') throw new Error('Settings units are invalid.');
   if (value.id !== 'app') throw new Error('Settings id is invalid.');
   if (!isValidTimestamp(value.createdAt) || !isValidTimestamp(value.updatedAt)) {
@@ -197,8 +195,10 @@ function validateSettings(value: unknown): AppSettings | null {
   // Accent was added after the first backups existed, and the palettes have been
   // renamed since. An absent or unrecognised value means "use the default" rather
   // than a corrupt record, so old files still restore instead of failing outright.
+  const settings = { ...(value as unknown as AppSettings) };
+  delete (settings as unknown as Record<string, unknown>).theme;
   return {
-    ...(value as unknown as AppSettings),
+    ...settings,
     accent: isAccentPreference(value.accent) ? value.accent : DEFAULT_ACCENT,
   };
 }

@@ -20,6 +20,8 @@ export interface NumberFieldProps {
   autoFocus?: boolean;
   onEnter?: () => void;
   id?: string;
+  /** `brand` paints the -/+ stepper buttons with the accent surface. */
+  stepperTone?: 'default' | 'brand';
 }
 
 interface NumberFieldInputProps extends Omit<NumberFieldProps, 'value' | 'onChange'> {
@@ -45,7 +47,9 @@ function NumberFieldInput({
   autoFocus,
   onEnter,
   id,
+  stepperTone = 'default',
 }: NumberFieldInputProps) {
+  const isBrandStepper = stepperTone === 'brand';
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const numeric = parseNumericInput(value);
@@ -106,25 +110,43 @@ function NumberFieldInput({
             ].join(' ')}
           />
         </div>
-        <div className="flex shrink-0 items-stretch overflow-hidden rounded-md border border-line-strong">
+        <div
+          className={[
+            'flex shrink-0 items-stretch overflow-hidden rounded-md border',
+            isBrandStepper ? 'border-brand-700' : 'border-line-strong',
+          ].join(' ')}
+        >
           <button
             type="button"
             onClick={() => nudge(-1)}
             disabled={disabled || (numeric !== null && min !== undefined && numeric <= min)}
             aria-label={`Decrease ${label}`}
-            className="flex w-11 items-center justify-center bg-surface text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink disabled:opacity-40"
+            className={[
+              'flex w-11 items-center justify-center transition-colors disabled:opacity-40',
+              isBrandStepper
+                ? 'bg-brand-700 text-white hover:bg-brand-800'
+                : 'bg-surface text-ink-muted hover:bg-surface-sunken hover:text-ink',
+            ].join(' ')}
           >
-            <Minus size={16} strokeWidth={2} aria-hidden="true" />
+            <Minus size={16} strokeWidth={2.6} aria-hidden="true" />
           </button>
-          <div className="w-px bg-line" aria-hidden="true" />
+          <div
+            className={['w-px', isBrandStepper ? 'bg-brand-800' : 'bg-line'].join(' ')}
+            aria-hidden="true"
+          />
           <button
             type="button"
             onClick={() => nudge(1)}
             disabled={disabled || (numeric !== null && max !== undefined && numeric >= max)}
             aria-label={`Increase ${label}`}
-            className="flex w-11 items-center justify-center bg-surface text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink disabled:opacity-40"
+            className={[
+              'flex w-11 items-center justify-center transition-colors disabled:opacity-40',
+              isBrandStepper
+                ? 'bg-brand-700 text-white hover:bg-brand-800'
+                : 'bg-surface text-ink-muted hover:bg-surface-sunken hover:text-ink',
+            ].join(' ')}
           >
-            <Plus size={16} strokeWidth={2} aria-hidden="true" />
+            <Plus size={16} strokeWidth={2.6} aria-hidden="true" />
           </button>
         </div>
       </div>

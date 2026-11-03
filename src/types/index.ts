@@ -12,8 +12,6 @@ export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active';
 
 export type UnitSystem = 'metric';
 
-export type ThemePreference = 'system' | 'light' | 'dark';
-
 /** Accent palettes. Only the brand ramp changes; status and macro hues are fixed. */
 export type AccentPreference = 'bubblegum' | 'sky' | 'mint' | 'peach' | 'grape';
 
@@ -119,7 +117,6 @@ export interface WeightLog {
 
 export interface AppSettings {
   id: 'app';
-  theme: ThemePreference;
   accent: AccentPreference;
   units: UnitSystem;
   disclaimerAcceptedAt: string;

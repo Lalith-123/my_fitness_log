@@ -1,16 +1,25 @@
 import type { ReactNode } from 'react';
-import { Button } from './Button';
+import { Button, type ButtonVariant } from './Button';
 
 export interface EmptyStateProps {
   title: string;
   description: string;
   actionLabel?: string;
   onAction?: () => void;
+  actionVariant?: ButtonVariant;
   icon?: ReactNode;
   compact?: boolean;
 }
 
-export function EmptyState({ title, description, actionLabel, onAction, icon, compact = false }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  description,
+  actionLabel,
+  onAction,
+  actionVariant = 'secondary',
+  icon,
+  compact = false,
+}: EmptyStateProps) {
   return (
     <div
       className={[
@@ -23,7 +32,7 @@ export function EmptyState({ title, description, actionLabel, onAction, icon, co
       <p className="text-sm font-medium text-ink">{title}</p>
       <p className="max-w-xs text-xs leading-relaxed text-ink-muted">{description}</p>
       {actionLabel && onAction ? (
-        <Button variant="secondary" size="sm" onClick={onAction} className="mt-2">
+        <Button variant={actionVariant} size="sm" onClick={onAction} className="mt-2">
           {actionLabel}
         </Button>
       ) : null}

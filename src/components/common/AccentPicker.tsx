@@ -5,8 +5,6 @@ import type { AccentPreference } from '@/types';
 export interface AccentPickerProps {
   value: AccentPreference;
   onChange: (value: AccentPreference) => void;
-  /** Swatch hue for the given colour scheme, so previews match the active theme. */
-  scheme: 'light' | 'dark';
   columns?: 2 | 3;
 }
 
@@ -14,7 +12,7 @@ export interface AccentPickerProps {
  * Palette chooser. Each option previews the real ramp, so the choice reads as
  * "how will the app look" rather than "which word do I pick".
  */
-export function AccentPicker({ value, onChange, scheme, columns = 2 }: AccentPickerProps) {
+export function AccentPicker({ value, onChange, columns = 2 }: AccentPickerProps) {
   return (
     <div
       role="radiogroup"
@@ -40,7 +38,7 @@ export function AccentPicker({ value, onChange, scheme, columns = 2 }: AccentPic
             <span
               aria-hidden="true"
               className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: option.swatch[scheme] }}
+              style={{ backgroundColor: option.swatch }}
             >
               {selected ? <Check size={14} strokeWidth={2.6} className="text-white" /> : null}
             </span>

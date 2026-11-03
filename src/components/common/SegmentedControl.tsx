@@ -13,6 +13,8 @@ export interface SegmentedControlProps<T extends string> {
   size?: 'sm' | 'md';
   fullWidth?: boolean;
   className?: string;
+  /** `brand` inverts the control: brand track, white labels, white selected chip. */
+  tone?: 'default' | 'brand';
 }
 
 export function SegmentedControl<T extends string>({
@@ -23,15 +25,18 @@ export function SegmentedControl<T extends string>({
   size = 'md',
   fullWidth = false,
   className = '',
+  tone = 'default',
 }: SegmentedControlProps<T>) {
   const name = useId();
+  const isBrand = tone === 'brand';
 
   return (
     <div
       role="radiogroup"
       aria-label={label}
       className={[
-        'inline-flex items-center gap-0.5 rounded-md border border-line bg-surface-sunken p-0.5',
+        'inline-flex items-center gap-0.5 rounded-md border p-0.5',
+        isBrand ? 'border-brand-600 bg-brand-700' : 'border-line bg-surface-sunken',
         fullWidth ? 'w-full' : '',
         className,
       ]
@@ -53,8 +58,12 @@ export function SegmentedControl<T extends string>({
               'flex-1 rounded-[5px] px-3 font-medium transition-colors duration-150 whitespace-nowrap',
               size === 'sm' ? 'h-8 text-xs' : 'h-9 text-[13px]',
               selected
-                ? 'bg-surface text-ink shadow-xs'
-                : 'text-ink-muted hover:text-ink',
+                ? isBrand
+                  ? 'bg-white text-brand-700 shadow-xs'
+                  : 'bg-surface text-ink shadow-xs'
+                : isBrand
+                  ? 'text-white/90 hover:bg-white/10 hover:text-white'
+                  : 'text-ink-muted hover:text-ink',
             ].join(' ')}
           >
             {option.label}

@@ -81,6 +81,43 @@
   --animate-toast-in: toast-in 200ms var(--ease-out-soft);
 }
 
+/*
+  Ink on brand surfaces
+  ---------------------
+  Brand steps 600-900 are dark fills and carry light text; the 50-400 steps are
+  light fills and carry dark text. Overriding the ink tokens on the surface
+  itself lets every descendant that already uses text-ink / text-ink-muted /
+  text-ink-subtle adapt, instead of recolouring each component by hand.
+
+  Nested light surfaces reset the tokens, so a surface panel (for example the
+  mobile menu inside the brand header) keeps dark text.
+
+  500 is intentionally left alone: it is mid-tone and has no text on it today,
+  so it inherits whatever its parent surface uses.
+*/
+.bg-brand-600,
+.bg-brand-700,
+.bg-brand-800,
+.bg-brand-900 {
+  --color-ink: #ffffff;
+  --color-ink-muted: #ffffffE6;
+  --color-ink-subtle: #ffffffE6;
+}
+
+.bg-brand-50,
+.bg-brand-100,
+.bg-brand-200,
+.bg-brand-300,
+.bg-brand-400,
+.bg-canvas,
+.bg-surface,
+.bg-surface-sunken,
+.bg-white {
+  --color-ink: #1c1b18;
+  --color-ink-muted: #5f5d56;
+  --color-ink-subtle: #8a877e;
+}
+
 @keyframes sheet-in {
   from {
     transform: translate3d(0, 12%, 0);
@@ -204,162 +241,11 @@
   --color-brand-900: #430b74;
 }
 
-/*
-  Dark mode
-  ---------
-  The app resolves the preference to a concrete `light` or `dark` and writes it to
-  `<html data-theme>`, so a system preference needs no media query here.
-
-  Dark is where a palette can look muddy, so each one re-tunes the whole ramp
-  rather than just dimming the light values: the low steps become tinted dark
-  surfaces, and 600-900 turn bright and candy-like so they stay readable as text
-  and as button fills. The neutrals are tinted to match, so no palette is a
-  coloured accent sitting on someone else's grey.
-*/
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  /* Bubblegum (default) */
-  --color-canvas: #1a1017;
-  --color-surface: #241520;
-  --color-surface-sunken: #150c11;
-  --color-line: #3a2431;
-  --color-line-strong: #54364a;
-
-  --color-ink: #fdf3f7;
-  --color-ink-muted: #cbb2bd;
-  --color-ink-subtle: #a48d99;
-  --color-ink-inverse: #1a1017;
-
-  --color-brand-50: #3a1226;
-  --color-brand-100: #4e1833;
-  --color-brand-200: #6b2148;
-  --color-brand-300: #8d2a5f;
-  --color-brand-400: #b93a78;
-  --color-brand-500: #e05596;
-  --color-brand-600: #ff7ab4;
-  --color-brand-700: #ff9fca;
-  --color-brand-800: #ffc4e0;
-  --color-brand-900: #ffe3ef;
-
-  --color-caution-50: #322510;
-  --color-caution-100: #43310a;
-  --color-caution-500: #f0b93f;
-  --color-caution-700: #ffd977;
-  --color-caution-900: #ffeaa8;
-
-  --color-critical-50: #341614;
-  --color-critical-100: #481a17;
-  --color-critical-500: #ef7a6e;
-  --color-critical-600: #ff938a;
-  --color-critical-700: #ffb4ad;
-
-  --color-accent-50: #10243a;
-  --color-accent-100: #16324e;
-  --color-accent-500: #62b5f5;
-  --color-accent-700: #a3d8ff;
-
-  --color-protein: #86b8f0;
-  --color-carbs: #f5c862;
-  --color-fat: #d59fe0;
-  --color-fiber: #86dcb0;
-
-  /* Shadows read as depth only, so they soften in dark mode */
-  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.32), 0 1px 1px rgb(0 0 0 / 0.2);
-  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.24);
-  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.55), 0 4px 8px -4px rgb(0 0 0 / 0.3);
-}
-
-:root[data-theme='dark'][data-accent='sky'] {
-  --color-canvas: #0d1620;
-  --color-surface: #141f2b;
-  --color-surface-sunken: #0a1119;
-  --color-line: #23374a;
-  --color-line-strong: #34506b;
-  --color-ink: #eff8ff;
-  --color-ink-muted: #b0c8dd;
-  --color-ink-subtle: #869eb4;
-  --color-ink-inverse: #0d1620;
-  --color-brand-50: #0d2740;
-  --color-brand-100: #123654;
-  --color-brand-200: #184a72;
-  --color-brand-300: #1f6099;
-  --color-brand-400: #2b7cc4;
-  --color-brand-500: #4595e0;
-  --color-brand-600: #6fb3f5;
-  --color-brand-700: #99cbfb;
-  --color-brand-800: #c2e2fd;
-  --color-brand-900: #e2f2fe;
-}
-
-:root[data-theme='dark'][data-accent='mint'] {
-  --color-canvas: #0a1a15;
-  --color-surface: #10241d;
-  --color-surface-sunken: #07120e;
-  --color-line: #1d3b31;
-  --color-line-strong: #2b5748;
-  --color-ink: #eefff7;
-  --color-ink-muted: #a9cfc0;
-  --color-ink-subtle: #7fa795;
-  --color-ink-inverse: #0a1a15;
-  --color-brand-50: #0b3327;
-  --color-brand-100: #0f4434;
-  --color-brand-200: #156045;
-  --color-brand-300: #1c805a;
-  --color-brand-400: #27a473;
-  --color-brand-500: #35c48d;
-  --color-brand-600: #5ad9a7;
-  --color-brand-700: #86e5bf;
-  --color-brand-800: #b2efd6;
-  --color-brand-900: #d6f7ea;
-}
-
-:root[data-theme='dark'][data-accent='peach'] {
-  --color-canvas: #1d1410;
-  --color-surface: #271b14;
-  --color-surface-sunken: #150e0a;
-  --color-line: #402c1f;
-  --color-line-strong: #5c402c;
-  --color-ink: #fff5ef;
-  --color-ink-muted: #dcc0ac;
-  --color-ink-subtle: #b39a87;
-  --color-ink-inverse: #1d1410;
-  --color-brand-50: #3a1a0c;
-  --color-brand-100: #4e2410;
-  --color-brand-200: #6b3315;
-  --color-brand-300: #8d451b;
-  --color-brand-400: #b85820;
-  --color-brand-500: #e06c28;
-  --color-brand-600: #ff8a4a;
-  --color-brand-700: #ffa876;
-  --color-brand-800: #ffc6a2;
-  --color-brand-900: #ffdfcb;
-}
-
-:root[data-theme='dark'][data-accent='grape'] {
-  --color-canvas: #150f1e;
-  --color-surface: #1e1629;
-  --color-surface-sunken: #0f0a16;
-  --color-line: #33254a;
-  --color-line-strong: #4a3767;
-  --color-ink: #f7f2ff;
-  --color-ink-muted: #c4b3e0;
-  --color-ink-subtle: #9d8bba;
-  --color-ink-inverse: #150f1e;
-  --color-brand-50: #25103f;
-  --color-brand-100: #32164f;
-  --color-brand-200: #462069;
-  --color-brand-300: #5c2b8a;
-  --color-brand-400: #7438af;
-  --color-brand-500: #8c4ad0;
-  --color-brand-600: #a96ceb;
-  --color-brand-700: #c48ff5;
-  --color-brand-800: #dcb1fa;
-  --color-brand-900: #eed4fd;
-}
-
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
   *,
   *::before,
   *::after {

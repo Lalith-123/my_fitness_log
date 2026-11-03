@@ -213,6 +213,7 @@ export function FoodPickerSheet({
       <BottomSheet
         open={open && !editorOpen}
         onClose={onClose}
+        headerTone="brand"
         title={
           step === 'browse' ? (editItem ? 'Change this entry' : 'Add food') : editItem ? 'Edit this entry' : 'Log this food'
         }
@@ -226,6 +227,7 @@ export function FoodPickerSheet({
             <IconButton
               label="Back to search"
               size="sm"
+              variant="inverse"
               onClick={() => {
                 setStep('browse');
                 setSelected(null);
@@ -237,6 +239,7 @@ export function FoodPickerSheet({
             <IconButton
               label="Create a new food"
               size="sm"
+              variant="inverse"
               onClick={() => {
                 setEditorFood(null);
                 setEditorOpen(true);
@@ -290,6 +293,7 @@ export function FoodPickerSheet({
                   label="Food source"
                   size="sm"
                   fullWidth
+                  tone="brand"
                   value={tab}
                   onChange={(value) => {
                     setTab(value);
@@ -406,7 +410,12 @@ export function FoodPickerSheet({
                       : `Add ${selected.name} to favourites`
                   }
                   aria-pressed={index.favoriteIds.includes(selected.id)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-subtle transition-colors hover:text-ink"
+                  className={[
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors',
+                    index.favoriteIds.includes(selected.id)
+                      ? 'text-brand-700'
+                      : 'text-ink-subtle hover:text-ink',
+                  ].join(' ')}
                 >
                   <Star
                     size={16}
@@ -421,6 +430,7 @@ export function FoodPickerSheet({
             <NumberField
               label="Quantity"
               unit="g"
+              stepperTone="brand"
               value={quantity}
               onChange={(value) => {
                 setQuantity(value);
@@ -439,7 +449,7 @@ export function FoodPickerSheet({
                 <button
                   type="button"
                   onClick={() => setQuantity(String(selected.portion?.grams ?? 100))}
-                  className="rounded-md border border-line-strong bg-surface px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:bg-surface-sunken"
+                  className="rounded-md border border-brand-700 bg-brand-700 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-800"
                 >
                   {selected.portion.label}
                 </button>
@@ -451,7 +461,7 @@ export function FoodPickerSheet({
                       key={grams}
                       type="button"
                       onClick={() => setQuantity(String(grams))}
-                      className="rounded-md border border-line bg-surface px-3 py-1.5 text-xs text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink tnum"
+                      className="rounded-md border border-brand-700 bg-brand-700 px-3 py-1.5 text-xs text-white transition-colors hover:bg-brand-800 tnum"
                     >
                       {grams} g
                     </button>
@@ -461,7 +471,9 @@ export function FoodPickerSheet({
 
             {selectedNutrition ? (
               editItem ? (
-                <NutritionSummary nutrition={selectedNutrition} />
+                <div className="overflow-hidden rounded-lg border border-brand-700 bg-brand-700">
+                  <NutritionSummary nutrition={selectedNutrition} />
+                </div>
               ) : (
                 <button
                   type="button"
@@ -469,7 +481,7 @@ export function FoodPickerSheet({
                     setEditorFood(selected);
                     setEditorOpen(true);
                   }}
-                  className="group block w-full rounded-lg border border-line bg-surface text-left transition-colors hover:border-line-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+                  className="group block w-full overflow-hidden rounded-lg border border-brand-700 bg-brand-700 text-left transition-colors hover:border-brand-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
                 >
                   <NutritionSummary nutrition={selectedNutrition} editable />
                 </button>
@@ -547,13 +559,13 @@ function NutritionSummary({
 }) {
   return (
     <>
-      <div className="flex items-baseline justify-between border-b border-line px-3.5 py-2.5">
+      <div className="flex items-baseline justify-between border-b border-white/15 px-3.5 py-2.5">
         <span className="text-sm text-ink-muted">Energy</span>
         <span className="text-sm font-semibold text-ink tnum">
           {formatCalories(nutrition.calories)} kcal
         </span>
       </div>
-      <dl className="grid grid-cols-4 divide-x divide-line">
+      <dl className="grid grid-cols-4 divide-x divide-white/15">
         {MACRO_FIELDS.map(([label, key]) => (
           <div key={key} className="px-2 py-2.5 text-center">
             <dt className="text-[10px] text-ink-subtle">{label}</dt>
@@ -564,7 +576,7 @@ function NutritionSummary({
         ))}
       </dl>
       {editable ? (
-        <p className="flex items-center gap-1.5 border-t border-line px-3.5 py-2 text-[11px] text-ink-subtle">
+        <p className="flex items-center gap-1.5 border-t border-white/15 px-3.5 py-2 text-[11px] text-white/70">
           <Pencil size={12} strokeWidth={2} aria-hidden="true" />
           Tap to correct these values
         </p>

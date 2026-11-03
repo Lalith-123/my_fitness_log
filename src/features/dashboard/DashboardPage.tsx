@@ -61,8 +61,8 @@ export function DashboardPage() {
     <div className="flex flex-col gap-5">
       <header className="flex flex-col gap-3">
         <div>
-          <p className="text-[13px] text-ink-muted">{getGreeting()}</p>
-          <h1 className="text-[22px] leading-tight font-semibold tracking-[-0.02em] text-ink">
+          <p className="text-[13px] font-medium text-brand-600">{getGreeting()}</p>
+          <h1 className="text-[22px] leading-tight font-semibold tracking-[-0.02em] text-brand-700">
             {profile?.name ?? 'Welcome'}
           </h1>
         </div>

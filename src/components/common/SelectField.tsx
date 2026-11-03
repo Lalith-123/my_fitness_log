@@ -37,9 +37,9 @@ export interface SelectFieldProps
  * A themed listbox.
  *
  * A native <select> draws its popup with OS chrome that ignores the app's design
- * tokens, which is jarring in dark mode and inconsistent across platforms. This
- * keeps the familiar select appearance and keyboard behaviour while rendering
- * the option list with the app's own surfaces, borders and type.
+ * tokens, which looks inconsistent across platforms. This keeps the familiar
+ * select appearance and keyboard behaviour while rendering the option list with
+ * the app's own surfaces, borders and type.
  */
 export const SelectField = forwardRef<HTMLButtonElement, SelectFieldProps>(function SelectField(
   { label, hint, error, options, className = '', selectSize = 'sm', value, required, onChange, ...rest },

@@ -23,9 +23,8 @@ import { formatCalories, formatNumber, formatWeight, parseNumericInput, round } 
 import { LIMITS, validateEnergyKcal } from '@/utils/validation/validation';
 import { useToast } from '@/components/common/Toast';
 import { AccentPicker } from '@/components/common/AccentPicker';
-import { previewAccent, previewTheme } from '@/hooks/useTheme';
-import { resolveScheme } from '@/app/theme';
-import type { AccentPreference, ActivityLevel, GoalType, Sex, ThemePreference } from '@/types';
+import { previewAccent } from '@/hooks/useAccent';
+import type { AccentPreference, ActivityLevel, GoalType, Sex } from '@/types';
 
 const STEPS = ['Appearance', 'About you', 'Goal', 'Review'] as const;
 
@@ -33,7 +32,6 @@ const WEEKLY_OPTIONS_LOSE = [0.25, 0.5, 0.75, 1.0];
 const WEEKLY_OPTIONS_GAIN = [0.1, 0.25, 0.5];
 
 interface FormState {
-  theme: ThemePreference;
   accent: AccentPreference;
   name: string;
   age: string;
@@ -51,7 +49,6 @@ interface FormState {
 }
 
 const INITIAL: FormState = {
-  theme: 'system',
   accent: 'bubblegum',
   name: '',
   age: '',
@@ -81,15 +78,11 @@ export function OnboardingPage() {
     setErrors((current) => ({ ...current, [key]: null }));
   };
 
-  // Palette and scheme are previewed on the spot so the choice is made against
-  // the real colours, then written to the database on submit.
+  // Palette is previewed on the spot so the choice is made against the real
+  // colours, then written to the database on submit.
   const chooseAccent = (accent: AccentPreference) => {
     update('accent', accent);
     previewAccent(accent);
-  };
-  const chooseTheme = (theme: ThemePreference) => {
-    update('theme', theme);
-    previewTheme(theme);
   };
 
   /**
@@ -102,8 +95,6 @@ export function OnboardingPage() {
     setForm((current) => ({ ...current, bmrOverride: value, tdeeOverride: '' }));
     setErrors((current) => ({ ...current, bmrOverride: null, tdeeOverride: null }));
   };
-  const previewScheme = resolveScheme(form.theme);
-
   const bmrOverride = parseNumericInput(form.bmrOverride);
   const tdeeOverride = parseNumericInput(form.tdeeOverride);
 
@@ -265,7 +256,6 @@ export function OnboardingPage() {
       });
       await db.settings.put({
         id: 'app',
-        theme: form.theme,
         accent: form.accent,
         units: 'metric',
         disclaimerAcceptedAt: new Date().toISOString(),
@@ -313,22 +303,7 @@ export function OnboardingPage() {
                 Pick the colour you will see every day. You can change it later in Settings.
               </p>
             </div>
-            <AccentPicker value={form.accent} onChange={chooseAccent} scheme={previewScheme} />
-            <div>
-              <p className="mb-2 text-[13px] font-medium text-ink-muted">Light or dark</p>
-              <SegmentedControl
-                className="w-full"
-                size="sm"
-                label="Light or dark"
-                value={form.theme}
-                onChange={chooseTheme}
-                options={[
-                  { value: 'light', label: 'Light' },
-                  { value: 'dark', label: 'Dark' },
-                  { value: 'system', label: 'System' },
-                ]}
-              />
-            </div>
+            <AccentPicker value={form.accent} onChange={chooseAccent} />
           </section>
         ) : step === 1 ? (
           <section className="flex flex-col gap-5 animate-rise-in">

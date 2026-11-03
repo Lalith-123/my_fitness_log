@@ -40,7 +40,7 @@ export function WeightCard({
           <button
             type="button"
             onClick={onLogWeight}
-            className="text-[12px] font-medium text-brand-700 hover:text-brand-800"
+            className="text-[12px] font-medium text-white/90 hover:text-white"
           >
             {weightKg !== null ? (loggedToday ? 'Update' : 'Log') : 'Log'}
           </button>

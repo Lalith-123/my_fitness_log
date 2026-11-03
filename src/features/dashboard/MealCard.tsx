@@ -36,10 +36,10 @@ export function MealCard({ date, mealType, items, targetCalories }: MealCardProp
   };
 
   return (
-    <section aria-label={MEAL_LABELS[mealType]}>
-      <div className="flex items-baseline justify-between gap-3 py-2">
-        <h3 className="text-[13px] font-semibold text-ink">{MEAL_LABELS[mealType]}</h3>
-        <span className="text-[12px] text-ink-subtle tnum">
+    <section aria-label={MEAL_LABELS[mealType]} className="mb-6 rounded-md border border-line bg-surface shadow-sm">
+      <div className="flex items-baseline justify-between gap-3 py-2 bg-brand-700 px-3 rounded-t-md">
+        <h3 className="text-[13px] font-semibold text-white">{MEAL_LABELS[mealType]}</h3>
+        <span className="text-[12px] text-white/90 tnum">
           {isEmpty ? `~${targetCalories ?? 0} kcal` : `${formatCalories(totals.calories)} kcal`}
         </span>
       </div>
@@ -48,16 +48,16 @@ export function MealCard({ date, mealType, items, targetCalories }: MealCardProp
         <button
           type="button"
           onClick={() => openPicker(null)}
-          className="flex w-full items-center justify-between gap-3 border-y border-line py-3 text-left"
+          className="flex w-full items-center justify-between gap-3 border-y border-line py-3 px-5 text-left"
         >
-          <span className="text-[13px] text-ink-subtle">Nothing logged</span>
+          {/* <span className="text-[13px] text-ink-subtle">Nothing logged</span> */}
           <span className="flex items-center gap-1 text-[12px] font-medium text-brand-700">
             <Plus size={14} strokeWidth={2.2} aria-hidden="true" />
-            Add
+            Add food
           </span>
         </button>
       ) : (
-        <ul className="border-y border-line">
+        <ul className="border-y border-line px-5">
           {items.map((item) => (
             <MealItemRow
               key={item.id}
@@ -138,7 +138,7 @@ function MealItemRow({
   };
 
   return (
-    <li className="flex items-center gap-3 py-2.5">
+    <li className="flex items-center gap-3 py-2.5 border-b border-line last:border-b-0">
       <div className="min-w-0 flex-1">
         <button type="button" onClick={onEdit} className="block w-full text-left">
           <span className="block truncate text-[13px] font-medium text-ink">{item.foodNameSnapshot}</span>
@@ -152,26 +152,38 @@ function MealItemRow({
         <IconButton
           label={`Reduce ${item.foodNameSnapshot} by 10 grams`}
           size="sm"
+          variant="inverse"
           disabled={busy}
           onClick={() => changeQuantity(item.quantityGrams - 10)}
         >
           <Minus size={15} strokeWidth={2.2} aria-hidden="true" />
         </IconButton>
-        <span className="w-11 text-center text-[12px] text-ink-muted tnum">
+        <span className="flex h-9 w-11 items-center justify-center rounded-md border border-brand-700 text-[12px] text-ink-muted tnum">
           {round(item.quantityGrams, 0)}g
         </span>
         <IconButton
           label={`Increase ${item.foodNameSnapshot} by 10 grams`}
           size="sm"
+          variant="inverse"
           disabled={busy}
           onClick={() => changeQuantity(item.quantityGrams + 10)}
         >
           <Plus size={15} strokeWidth={2.2} aria-hidden="true" />
         </IconButton>
-        <IconButton label={`Edit ${item.foodNameSnapshot}`} size="sm" onClick={onEdit}>
+        <IconButton
+          label={`Edit ${item.foodNameSnapshot}`}
+          size="sm"
+          variant="inverse"
+          onClick={onEdit}
+        >
           <Pencil size={14} strokeWidth={2} aria-hidden="true" />
         </IconButton>
-        <IconButton label={`Remove ${item.foodNameSnapshot}`} size="sm" onClick={onDelete}>
+        <IconButton
+          label={`Remove ${item.foodNameSnapshot}`}
+          size="sm"
+          variant="inverse"
+          onClick={onDelete}
+        >
           <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
         </IconButton>
       </div>

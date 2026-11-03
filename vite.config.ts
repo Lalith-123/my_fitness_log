@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Fitness Log',
         short_name: 'Fitness Log',
         description: 'Private, local-first calorie and weight tracking.',
-        theme_color: '#0f5132',
+        theme_color: '#faf9f6',
         background_color: '#faf9f6',
         display: 'standalone',
         orientation: 'portrait',

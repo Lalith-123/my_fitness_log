@@ -91,104 +91,119 @@ export function FoodPage() {
         }
       />
 
-      <div className="flex flex-col gap-3 pb-4">
-        <div className="relative">
-          <Search
-            size={16}
-            strokeWidth={2}
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-subtle"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => {
-              setQuery(event.target.value);
-              if (event.target.value) setCategory(null);
-            }}
-            placeholder="Search foods"
-            aria-label="Search foods"
-            className="h-11 w-full rounded-md border border-line-strong bg-surface pr-3 pl-9 text-[15px] text-ink placeholder:text-ink-subtle"
-          />
+      <section className="overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
+        <div className="flex items-baseline justify-between gap-3 bg-brand-700 px-4 py-2 sm:px-5">
+          <h2 className="text-[13px] font-semibold text-white">Food library</h2>
+          <span className="text-[12px] text-white/90 tnum">
+            {visible.length} {visible.length === 1 ? 'food' : 'foods'}
+          </span>
         </div>
 
-        <SegmentedControl
-          label="Food list"
-          fullWidth
-          size="sm"
-          value={tab}
-          onChange={(value) => {
-            setTab(value);
-            setCategory(null);
-            setQuery('');
-          }}
-          options={[
-            { value: 'all', label: 'All' },
-            { value: 'favorites', label: 'Favourites' },
-            { value: 'custom', label: 'My foods' },
-          ]}
-        />
+        <div className="flex flex-col gap-3 p-4 sm:p-5">
+          <div className="relative">
+            <Search
+              size={16}
+              strokeWidth={2}
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-subtle"
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                if (event.target.value) setCategory(null);
+              }}
+              placeholder="Search foods"
+              aria-label="Search foods"
+              className="h-11 w-full rounded-md border border-line-strong bg-surface pr-3 pl-9 text-[15px] text-ink placeholder:text-ink-subtle"
+            />
+          </div>
 
-        {tab === 'all' && !query.trim() ? (
-          <div className="-mx-4 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0">
-            <div className="flex w-max gap-1.5">
-              <CategoryChip
-                label="All categories"
-                active={category === null}
-                onClick={() => setCategory(null)}
-              />
-              {categories.map((entry) => (
+          <SegmentedControl
+            label="Food list"
+            fullWidth
+            size="sm"
+            tone="brand"
+            value={tab}
+            onChange={(value) => {
+              setTab(value);
+              setCategory(null);
+              setQuery('');
+            }}
+            options={[
+              { value: 'all', label: 'All' },
+              { value: 'favorites', label: 'Favourites' },
+              { value: 'custom', label: 'My foods' },
+            ]}
+          />
+
+          {tab === 'all' && !query.trim() ? (
+            <div className="-mx-4 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0">
+              <div className="flex w-max gap-1.5">
                 <CategoryChip
-                  key={entry.category}
-                  label={entry.category}
-                  count={entry.count}
-                  active={category === entry.category}
-                  onClick={() => setCategory(entry.category === category ? null : entry.category)}
+                  label="All categories"
+                  active={category === null}
+                  onClick={() => setCategory(null)}
+                />
+                {categories.map((entry) => (
+                  <CategoryChip
+                    key={entry.category}
+                    label={entry.category}
+                    count={entry.count}
+                    active={category === entry.category}
+                    onClick={() => setCategory(entry.category === category ? null : entry.category)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {visible.length === 0 ? (
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+            <EmptyState
+              title={tab === 'favorites' ? 'No favourites yet' : tab === 'custom' ? 'No foods of your own' : 'No foods found'}
+              description={
+                tab === 'favorites'
+                  ? 'Mark foods you eat often and they will stay here for one-tap logging.'
+                  : tab === 'custom'
+                    ? 'Create a food to track something that is not in the built-in list.'
+                    : 'Try a shorter search term, or clear the category filter.'
+              }
+              actionLabel={tab === 'custom' ? 'Create food' : undefined}
+              actionVariant="primary"
+              onAction={tab === 'custom' ? () => { setEditing(null); setEditorOpen(true); } : undefined}
+              icon={<SlidersHorizontal size={18} strokeWidth={1.8} aria-hidden="true" />}
+            />
+          </div>
+        ) : (
+          <div className="border-t border-line">
+            <ul className="divide-y divide-line px-4 sm:px-5">
+              {visible.map((food) => (
+                <FoodRow
+                  key={food.id}
+                  food={food}
+                  onSelect={(target) => {
+                    setEditing(target);
+                    setEditorOpen(true);
+                  }}
+                  selectLabel={`Edit ${food.name}`}
+                  isFavorite={index.favoriteIds.includes(food.id)}
+                  onToggleFavorite={handleToggleFavorite}
+                  trailing={
+                    <span className="shrink-0 self-center text-[11px] font-medium text-brand-700">Edit</span>
+                  }
                 />
               ))}
-            </div>
+            </ul>
           </div>
-        ) : null}
-      </div>
+        )}
 
-      {visible.length === 0 ? (
-        <EmptyState
-          title={tab === 'favorites' ? 'No favourites yet' : tab === 'custom' ? 'No foods of your own' : 'No foods found'}
-          description={
-            tab === 'favorites'
-              ? 'Mark foods you eat often and they will stay here for one-tap logging.'
-              : tab === 'custom'
-                ? 'Create a food to track something that is not in the built-in list.'
-                : 'Try a shorter search term, or clear the category filter.'
-          }
-          actionLabel={tab === 'custom' ? 'Create food' : undefined}
-          onAction={tab === 'custom' ? () => { setEditing(null); setEditorOpen(true); } : undefined}
-          icon={<SlidersHorizontal size={18} strokeWidth={1.8} aria-hidden="true" />}
-        />
-      ) : (
-        <ul className="divide-y divide-line border-t border-line">
-          {visible.map((food) => (
-            <FoodRow
-              key={food.id}
-              food={food}
-              onSelect={(target) => {
-                setEditing(target);
-                setEditorOpen(true);
-              }}
-              selectLabel={`Edit ${food.name}`}
-              isFavorite={index.favoriteIds.includes(food.id)}
-              onToggleFavorite={handleToggleFavorite}
-              trailing={
-                <span className="shrink-0 self-center text-[11px] text-ink-subtle">Edit</span>
-              }
-            />
-          ))}
-        </ul>
-      )}
-
-      <p className="mt-5 border-t border-line pt-4 text-[11px] leading-relaxed text-ink-subtle">
-        {FOOD_REFERENCE_NOTE}
-      </p>
+        <p className="border-t border-line px-4 py-4 text-[11px] leading-relaxed text-ink-subtle sm:px-5">
+          {FOOD_REFERENCE_NOTE}
+        </p>
+      </section>
 
       <FoodEditorSheet
         open={editorOpen}

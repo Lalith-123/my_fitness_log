@@ -72,7 +72,7 @@ function MobileHeader({
   onNavigate,
 }: MobileHeaderProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-canvas/92 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 border-b border-line bg-brand-700 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-[560px] items-center gap-2 px-4 header-pad">
         <button
           type="button"
@@ -80,7 +80,7 @@ function MobileHeader({
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          className="-ml-1.5 flex h-10 w-10 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink"
+          className="-ml-1.5 flex h-10 w-10 items-center justify-center rounded-md text-white transition-colors hover:bg-surface-sunken hover:text-brand-900"
         >
           {menuOpen ? (
             <X size={19} strokeWidth={2} aria-hidden="true" />
@@ -89,10 +89,10 @@ function MobileHeader({
           )}
         </button>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-ink">
+          <p className="truncate text-[13px] font-semibold text-white">
             {profileName ? `${profileName}'s log` : 'Fitness Log'}
           </p>
-          <p className="truncate text-[11px] text-ink-subtle tnum">
+          <p className="truncate text-[11px] text-white/90 tnum">
             {targetCalories ? `Target ${formatCalories(targetCalories)} kcal` : 'No calorie target yet'}
           </p>
         </div>
@@ -105,7 +105,7 @@ function MobileHeader({
                 key={item.to}
                 type="button"
                 onClick={() => onNavigate(item.to)}
-                className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink"
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium text-brand-700 transition-colors hover:bg-surface-sunken hover:text-brand-900"
               >
                 <item.icon size={17} strokeWidth={2} aria-hidden="true" />
                 {item.label}
