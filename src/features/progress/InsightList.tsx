@@ -1,11 +1,10 @@
-import { Card } from '@/components/common/Card';
 import type { Insight } from '@/services/analytics/monthly';
 
 export function InsightList({ insights }: { insights: Insight[] }) {
   if (insights.length === 0) return null;
 
   return (
-    <Card>
+    <div className="rounded-lg border border-line bg-surface-sunken p-4 sm:p-5">
       <h2 className="text-[14px] font-semibold text-ink">What your records show</h2>
       <ul className="mt-2.5 flex flex-col gap-2">
         {insights.map((insight) => (
@@ -19,6 +18,6 @@ export function InsightList({ insights }: { insights: Insight[] }) {
         These lines describe what you recorded. They are not a judgement of your intake and not
         medical advice.
       </p>
-    </Card>
+    </div>
   );
 }

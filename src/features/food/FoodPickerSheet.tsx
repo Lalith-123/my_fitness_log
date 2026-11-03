@@ -381,7 +381,7 @@ export function FoodPickerSheet({
                     setEditorFood(null);
                     setEditorOpen(true);
                   }}
-                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-line-strong py-2.5 text-sm font-medium text-ink-muted transition-colors hover:border-ink-subtle hover:text-ink"
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-brand-700 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-800"
                 >
                   <Plus size={15} strokeWidth={2} aria-hidden="true" />
                   Create a new food

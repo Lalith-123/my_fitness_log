@@ -138,6 +138,7 @@ export function ProgressPage() {
           label="Time range"
           fullWidth
           size="sm"
+          tone="brand"
           value={range}
           onChange={(value) => {
             setRange(value);
@@ -149,6 +150,7 @@ export function ProgressPage() {
           label="Metric"
           fullWidth
           size="sm"
+          tone="brand"
           value={metric}
           onChange={(value) => {
             setMetric(value);
