@@ -7,6 +7,11 @@ import { CalorieCard } from './CalorieCard';
 import { WeightCard } from './WeightCard';
 import { LogWeightDialog } from '@/features/weight/LogWeightDialog';
 import {
+  hasShownDailyWeightPrompt,
+  markDailyWeightPromptShown,
+} from '@/features/weight/dailyPrompt';
+import { suggestedWeightForDate } from '@/features/weight/suggestedWeight';
+import {
   useActiveGoal,
   useDayData,
   useFirstRecordedDate,
@@ -56,6 +61,19 @@ export function DashboardPage() {
   const isTodayView = isToday(date);
   const calorieTarget = targets?.target ?? 0;
   const dayHasFood = [...day.itemsByMealId.values()].some((list) => list.length > 0);
+
+  const today = getTodayLocalDate();
+  const suggestedWeightKg = useMemo(
+    () => suggestedWeightForDate(goal ?? null, isTodayView ? today : date),
+    [goal, isTodayView, today, date],
+  );
+
+  useEffect(() => {
+    if (!isTodayView || !day.loaded || day.weight) return;
+    if (hasShownDailyWeightPrompt(today)) return;
+    markDailyWeightPromptShown(today);
+    setWeightDialogOpen(true);
+  }, [isTodayView, day.loaded, day.weight, today]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -118,8 +136,10 @@ export function DashboardPage() {
       <LogWeightDialog
         open={weightDialogOpen}
         onClose={() => setWeightDialogOpen(false)}
-        date={isTodayView ? getTodayLocalDate() : date}
+        date={isTodayView ? today : date}
         existingWeightKg={day.weight?.weightKg ?? null}
+        suggestedWeightKg={suggestedWeightKg}
+        onAskLater={() => setWeightDialogOpen(false)}
       />
     </div>
   );

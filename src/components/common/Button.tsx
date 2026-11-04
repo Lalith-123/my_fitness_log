@@ -1,6 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'quiet';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'quiet' | 'inverse';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const VARIANTS: Record<ButtonVariant, string> = {
@@ -11,6 +11,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   ghost: 'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink active:bg-line/60',
   quiet: 'bg-surface-sunken text-ink-muted hover:bg-line/70 hover:text-ink',
   danger: 'bg-critical-500 text-ink-inverse hover:bg-critical-700 active:bg-critical-700 shadow-xs',
+  inverse: 'bg-white text-brand-700 hover:bg-brand-50 active:bg-brand-100 shadow-xs',
 };
 
 const SIZES: Record<ButtonSize, string> = {

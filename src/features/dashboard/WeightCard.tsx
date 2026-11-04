@@ -1,4 +1,5 @@
 import { TrendingDown, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/common/Button';
 import { Card, CardHeader } from '@/components/common/Card';
 import { ProgressRing } from '@/components/common/ProgressRing';
 import { formatDayMonth } from '@/utils/dates/dates';
@@ -37,13 +38,15 @@ export function WeightCard({
       <CardHeader
         title={<span className="flex items-center gap-1.5">Weight</span>}
         trailing={
-          <button
-            type="button"
-            onClick={onLogWeight}
-            className="text-[12px] font-medium text-white/90 hover:text-white"
-          >
-            {weightKg !== null ? (loggedToday ? 'Update' : 'Log') : 'Log'}
-          </button>
+          !isTodayView ? (
+            <button
+              type="button"
+              onClick={onLogWeight}
+              className="text-[12px] font-medium text-white/90 hover:text-white"
+            >
+              {weightKg !== null ? 'Update' : 'Log'}
+            </button>
+          ) : undefined
         }
       />
 
@@ -122,6 +125,18 @@ export function WeightCard({
           No goal set yet. {isTodayView ? 'You can set one in Settings.' : ''}
         </p>
       )}
+
+      {isTodayView ? (
+        <Button
+          variant={loggedToday ? 'secondary' : 'inverse'}
+          size="md"
+          fullWidth
+          className="mt-3"
+          onClick={onLogWeight}
+        >
+          {loggedToday ? "Edit today's weight" : "Enter today's weight"}
+        </Button>
+      ) : null}
     </Card>
   );
 }

@@ -13,6 +13,8 @@ export interface DialogProps {
   /** Wider layout for forms. */
   width?: 'sm' | 'md';
   closeOnBackdrop?: boolean;
+  /** `brand` paints the title bar with the brand surface, like the sheet headers. */
+  headerTone?: 'default' | 'brand';
 }
 
 const FOCUSABLE =
@@ -27,7 +29,9 @@ export function Dialog({
   footer,
   width = 'sm',
   closeOnBackdrop = true,
+  headerTone = 'default',
 }: DialogProps) {
+  const isBrandHeader = headerTone === 'brand';
   const panelRef = useRef<HTMLDivElement>(null);
   useLockBodyScroll(open);
 
@@ -89,13 +93,27 @@ export function Dialog({
           width === 'sm' ? 'sm:max-w-md' : 'sm:max-w-xl',
         ].join(' ')}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-line px-4 py-3.5 sm:px-5">
+        <div
+          className={[
+            'flex items-start justify-between gap-4 border-b px-4 py-3.5 sm:px-5',
+            isBrandHeader ? 'border-white/15 bg-brand-700' : 'border-line',
+          ].join(' ')}
+        >
           <div className="flex min-w-0 flex-col gap-0.5">
-            <h2 id="dialog-title" className="text-[15px] font-semibold text-ink">
+            <h2
+              id="dialog-title"
+              className={['text-[15px] font-semibold', isBrandHeader ? 'text-white' : 'text-ink'].join(' ')}
+            >
               {title}
             </h2>
             {description ? (
-              <div id="dialog-description" className="text-xs leading-relaxed text-ink-muted">
+              <div
+                id="dialog-description"
+                className={[
+                  'text-xs leading-relaxed',
+                  isBrandHeader ? 'text-white/90' : 'text-ink-muted',
+                ].join(' ')}
+              >
                 {description}
               </div>
             ) : null}
@@ -104,7 +122,12 @@ export function Dialog({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1 -mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-ink-subtle transition-colors hover:bg-surface-sunken hover:text-ink"
+            className={[
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors',
+              isBrandHeader
+                ? 'bg-white text-brand-700 hover:bg-brand-50'
+                : '-mr-1 -mt-1 text-ink-subtle hover:bg-surface-sunken hover:text-ink',
+            ].join(' ')}
           >
             <X size={18} strokeWidth={2} aria-hidden="true" />
           </button>
